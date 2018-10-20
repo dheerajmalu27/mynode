@@ -1,50 +1,31 @@
 {
-  "name": "nodejs-restapi",
-  "version": "1.0.0",
-  "description": "Simple Example of nodejs to create rest call using MySQL",
-  "main": "index.js",
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "author": {
-    "name": "Rachel",
-    "email": "restapi2example@gmail.com",
-    "url": "http://www.resapiexample.com/"
-  },
-  "license": "MIT",
   "dependencies": {
-    "assert-plus": "1.0.0",
-    "aws-sdk": "2.37.0",
-    "bunyan": "1.8.12",
-    "cron": "1.3.0",
-    "elasticsearch": "14.2.1",
-    "http-aws-es": "1.1.3",
-    "joi": "13.1.2",
-    "lodash": "4.17.5",
-    "moment": "2.22.0",
-    "moment-timezone": "0.5.14",
-    "mustache": "2.3.0",
-    "node-cron": "1.2.1",
-    "pg": "6.1.0",
-    "pg-hstore": "2.3.2",
-    "pg-query-stream": "1.0.0",
-    "redis": "2.8.0",
-    "request": "2.85.0",
-    "restify": "4.3.2",
-    "sequelize": "^3.24.3",
-    "umzug": "1.11.0"
-    "body-parser": "^1.16.1",
+    "await-to-js": "^2.0.1",
+    "bcrypt": "^1.0.3",
+    "bcrypt-promise": "^2.0.0",
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
-    "express": "^4.14.1",
-    "express-validator": "^5.1.2",
-    "jsonwebtoken": "^8.2.1",
-    "md5": "^2.2.1",
-    "mysql": "^2.13.0",
-    "passport-jwt": "^4.0.0"
-  },
-"devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-nodemon": "^2.2.1",
-    "nodemon": "^1.18.3"
+    "debug": "~2.6.9",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.3",
+    "express-validator": "^5.3.0",
+    "jade": "~1.11.0",
+    "lodash": "^4.17.11",
+    "morgan": "~1.9.0",
+    "mysql2": "^1.5.1",
+    "parse-error": "^0.2.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.1.1",
+    "serve-favicon": "~2.4.5",
+    "validator": "^9.2.0"
   }
 }

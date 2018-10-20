@@ -1,0 +1,169 @@
+const { Student }          = require('../models');
+const { City }          = require('../models');
+const { State }          = require('../models');
+const { Class }          = require('../models');
+const { Division }          = require('../models');
+const db  = require('../models/index').db;
+const authService       = require('../services/auth.service');
+const { to, ReE, ReS }  = require('../services/util.service');
+
+const create = async function(req, res){
+    let err, studentObj;
+    let studentInfo = req.body;
+    console.log(studentInfo);
+    [err, studentObj] = await to(Student.create(studentInfo));
+    if(err) return ReE(res, err, 422);
+    
+    [err, studentObj] = await to(studentObj.save());
+    if(err) return ReE(res, err, 422);
+    
+    let studentJson = studentObj.toWeb();
+   
+    return ReS(res, {student:studentJson}, 201);
+}
+module.exports.create = create;
+
+const get = async function(req, res){
+    let teacherId = req.params.teacherId;
+    [err, teacherObj] = await to(Teacher.findById(teacherId));
+    if(err) return ReE(res, err, 422);
+
+    let teacherJson = teacherObj.toWeb();
+   
+    return ReS(res, {teacher:teacherJson}, 201);
+}
+module.exports.get = get;
+
+const getprofile = async function(req, res){
+    let studentId = req.params.studentId;
+    let studentData=new Object();
+//     db.sequelize.query('CALL test_proc();').then(function(response){
+//         console.log(response);
+//         res.json(response);
+//        }).error(function(err){
+//           res.json(err);
+//    });
+
+
+    Student.findAll({where:{id:studentId},
+        include: [{
+        model: Class,
+        as: 'StudentClass', 
+       attributes: ['className'],
+     },{
+        model: Division,
+        as: 'StudentDivision', 
+       attributes: ['divName'], 
+    },{
+        model: City,
+        as: 'StudentCity', 
+       attributes: ['cityName'],
+    },{
+        model: State,
+        as: 'StudentState', 
+       attributes: ['stateName'], 
+    }],}).then(function(data){
+        studentData.info=data;
+        db.sequelize.query('SELECT * FROM subjectteacherview WHERE classId=(SELECT st.classId FROM student as st WHERE st.id='+studentId+') AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id='+studentId+')', { type: db.sequelize.QueryTypes.SELECT }).then(function(subject){
+            studentData.subject=subject;
+            db.sequelize.query('SELECT tm.testId,tm.subId,tm.subName,tm.testName,ROUND((tm.getMarks/tm.totalMarks)*100) AS totalAvg FROM testmarksview as tm WHERE tm.studentId='+studentId+' AND tm.classId=(SELECT st.classId FROM student as st WHERE st.id='+studentId+') AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id='+studentId+') ORDER BY subId,testId', { type: db.sequelize.QueryTypes.SELECT }).then(function(testmarks){
+                studentData.testmarks=testmarks;
+                db.sequelize.query('SELECT at.* FROM attendance as at WHERE at.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(attendance){
+                    studentData.attendance=attendance;
+                    db.sequelize.query('SELECT mp.attendanceMonth AS month,mp.monthAvg AS result FROM studentmonthlyattendanceview as mp WHERE mp.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(monthlyattendance){
+                        studentData.monthlyattendance=monthlyattendance;
+                        db.sequelize.query('SELECT stv.testName,stv.totalAvg AS result FROM  studenttestresultview as stv WHERE stv.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(testresult){
+                            studentData.testresult=testresult;
+                            db.sequelize.query('SELECT mp.* FROM messageportal as mp WHERE mp.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(messageportal){
+                                studentData.messageportal=messageportal;
+                                res.json(studentData);
+                               }).error(function(err){
+                                  res.json(err);
+                            });
+                           
+                           }).error(function(err){
+                              res.json(err);
+                        });
+                       
+                       }).error(function(err){
+                          res.json(err);
+                    });
+                   }).error(function(err){
+                      res.json(err);
+                });
+               }).error(function(err){
+                  res.json(err);
+            });
+
+
+           }).error(function(err){
+              res.json(err);
+        });
+       
+    })
+    .catch(error => ReS(res, {student:error}));
+
+    
+    
+    
+}
+module.exports.getprofile = getprofile;
+
+const update = async function(req, res){
+    let err, studentObj, data
+    studentObj = req.student;
+    data = req.body;
+    console.log("data"+data);
+    studentObj.set(data);
+ 
+    [err, studentObj] = await to(studentObj.save());
+    if(err) return ReE(res, err, 422);
+
+    return ReS(res, {message :'Updated Student: '+studentObj.id});
+}
+module.exports.update = update;
+
+const remove = async function(req, res){
+    let studentObj, err;
+    studentObj = req.student;
+
+    [err, studentObj] = await to(studentObj.destroy());
+    if(err) return ReE(res, 'error occured trying to delete student');
+
+    return ReS(res, {message:'Deleted Student'}, 204);
+}
+module.exports.remove = remove;
+
+const getAll = async function(req, res){
+   
+    // Student.findAll({
+    //     include: [{
+    //         model: Class,
+    //         as: 'StudentClass', 
+    //        attributes: ['className'],
+    //      },{
+    //         model: Division,
+    //         as: 'StudentDivision', 
+    //        attributes: ['divName'], 
+    //     },{
+    //         model: City,
+    //         as: 'StudentCity', 
+    //        attributes: ['cityName'],
+    //     },{
+    //         model: State,
+    //         as: 'StudentState', 
+    //        attributes: ['stateName'], 
+    //     }],
+    // })
+    //     .then(att =>ReS(res, {student:att}))
+    //     .catch(error => ReS(res, {student:error}));
+    let studentData=new Object();
+    db.sequelize.query('SELECT st.*,cl.className,d.divName FROM student AS st LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
+        studentData.student=student;
+        
+        res.json(studentData);
+       }).error(function(err){
+          res.json(err);
+    });
+}
+module.exports.getAll = getAll;
