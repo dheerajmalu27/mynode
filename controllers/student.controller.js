@@ -24,13 +24,13 @@ const create = async function(req, res){
 module.exports.create = create;
 
 const get = async function(req, res){
-    let teacherId = req.params.teacherId;
-    [err, teacherObj] = await to(Teacher.findById(teacherId));
+    let studentId = req.params.studentId;
+    [err, studentObj] = await to(Student.findById(studentId));
     if(err) return ReE(res, err, 422);
 
-    let teacherJson = teacherObj.toWeb();
+    let studentJson = studentObj.toWeb();
    
-    return ReS(res, {teacher:teacherJson}, 201);
+    return ReS(res, {student:studentJson}, 201);
 }
 module.exports.get = get;
 
