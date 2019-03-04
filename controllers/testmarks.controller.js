@@ -1,7 +1,7 @@
 const { Testmarks }          = require('../models');
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
-
+const db  = require('../models/index').db;
 const create = async function(req, res){
     let err, testmarksObj;
     let testmarksInfo = req.body;
@@ -61,3 +61,22 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {testmarks:error}));
 }
 module.exports.getAll = getAll;
+const gettestmarkspendinglist = async function(req, res){
+    db.sequelize.query('SELECT * FROM testmarkspendingteacherlistview',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+               
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.gettestmarkspendinglist = gettestmarkspendinglist;
+
+const gettestmarkslist = async function(req, res){
+    db.sequelize.query('SELECT * FROM testmarkslistview',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+               
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.gettestmarkslist = gettestmarkslist;

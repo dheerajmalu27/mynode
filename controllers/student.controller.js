@@ -136,27 +136,7 @@ module.exports.remove = remove;
 
 const getAll = async function(req, res){
    
-    // Student.findAll({
-    //     include: [{
-    //         model: Class,
-    //         as: 'StudentClass', 
-    //        attributes: ['className'],
-    //      },{
-    //         model: Division,
-    //         as: 'StudentDivision', 
-    //        attributes: ['divName'], 
-    //     },{
-    //         model: City,
-    //         as: 'StudentCity', 
-    //        attributes: ['cityName'],
-    //     },{
-    //         model: State,
-    //         as: 'StudentState', 
-    //        attributes: ['stateName'], 
-    //     }],
-    // })
-    //     .then(att =>ReS(res, {student:att}))
-    //     .catch(error => ReS(res, {student:error}));
+    
     let studentData=new Object();
     db.sequelize.query('SELECT st.*,cl.className,d.divName FROM student AS st LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
         studentData.student=student;
@@ -167,3 +147,22 @@ const getAll = async function(req, res){
     });
 }
 module.exports.getAll = getAll;
+const getAllAbsentStudent = async function(req, res){
+    db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM `absentstudentlistview`',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+              console.log(response); 
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.getAllAbsentStudent = getAllAbsentStudent;
+const getTodayAbsentStudent = async function(req, res){
+    
+    db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM absentstudentlistview where attendanceDate=CURDATE()',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+               
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.getTodayAbsentStudent = getTodayAbsentStudent;

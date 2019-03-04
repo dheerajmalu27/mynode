@@ -3,6 +3,7 @@ const { Student }       = require('../models');
 const { Class }         = require('../models');
 const { Division }      = require('../models');
 const { Teacher }       = require('../models');
+const db  = require('../models/index').db;
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
 
@@ -109,3 +110,23 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {attendance:error}));
 }
 module.exports.getAll = getAll;
+
+const getpendinglist = async function(req, res){
+    db.sequelize.query('CALL attendancependinglist();').then(function(response){
+               
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.getpendinglist = getpendinglist;
+
+const getAttendanceList = async function(req, res){
+    db.sequelize.query('SELECT `classId`, `divId`, `className`, `divName`, `teacherName`, `teacherId`, `selectedDate`, `totalPresent`, `total` FROM `attendancelistview` ',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+              console.log(response); 
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+}
+module.exports.getAttendanceList = getAttendanceList;

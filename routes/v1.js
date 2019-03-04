@@ -54,7 +54,9 @@ router.delete('/todo/:todo_id', passport.authenticate('jwt', {session:false}), c
 
 router.post('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.create);                  // C
 router.get('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.getAll);                  // R
+router.get('/getattendancelist',passport.authenticate('jwt', {session:false}), AttendanceController.getAttendanceList);                  // R
 router.get('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.get);     // R
+router.get('/pendingattendance', passport.authenticate('jwt', {session:false}), AttendanceController.getpendinglist);     // R
 router.put('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.update);  // U
 router.delete('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.remove);  // D
 
@@ -93,6 +95,8 @@ router.delete('/state/:stateId', passport.authenticate('jwt', {session:false}), 
 
 router.post('/student',passport.authenticate('jwt', {session:false}), StudentController.create);                  // C
 router.get('/student',passport.authenticate('jwt', {session:false}), StudentController.getAll);                  // R
+router.get('/absentstudent',passport.authenticate('jwt', {session:false}), StudentController.getAllAbsentStudent);                  // R
+router.get('/todayabsentstudent',passport.authenticate('jwt', {session:false}), StudentController.getTodayAbsentStudent);                  // R
 router.get('/student/:studentId', passport.authenticate('jwt', {session:false}), custom.student, StudentController.get);     // R
 router.get('/studentprofile/:studentId', passport.authenticate('jwt', {session:false}), custom.student, StudentController.getprofile);     // R
 router.put('/student/:studentId', passport.authenticate('jwt', {session:false}), custom.student, StudentController.update);  // U
@@ -124,12 +128,15 @@ router.put('/test/:testId', passport.authenticate('jwt', {session:false}), custo
 router.delete('/test/:testId', passport.authenticate('jwt', {session:false}), custom.test, TestController.remove);  // D
 
 
+
+
 router.post('/testmarks',passport.authenticate('jwt', {session:false}), TestmarksController.create);                  // C
 router.get('/testmarks',passport.authenticate('jwt', {session:false}), TestmarksController.getAll);                  // R
 router.get('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.get);     // R
 router.put('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.update);  // U
 router.delete('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.remove);  // D
-
+router.get('/gettestmarkspendinglist', passport.authenticate('jwt', {session:false}), TestmarksController.gettestmarkspendinglist);     // R
+router.get('/gettestmarkslist', passport.authenticate('jwt', {session:false}), TestmarksController.gettestmarkslist);     // R
 
 router.get('/dash', passport.authenticate('jwt', {session:false}),HomeController.Dashboard)
 
