@@ -23,6 +23,14 @@ module.exports = (sequelize, DataTypes) => {
     parentNumberSecond: DataTypes.INTEGER,
     address: DataTypes.TEXT,
     pincode: DataTypes.STRING,
+    nationality:DataTypes.STRING,
+    religion:DataTypes.STRING,
+     caste:DataTypes.STRING,
+    bloodGroup:DataTypes.STRING,
+    address:DataTypes.STRING,
+    cityId:DataTypes.INTEGER,
+     stateId:DataTypes.INTEGER,
+     pincode:DataTypes.STRING,
     active: DataTypes.BOOLEAN
 
   }, {

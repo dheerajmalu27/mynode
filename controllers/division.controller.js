@@ -61,3 +61,10 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {division:error}));
 }
 module.exports.getAll = getAll;
+const getAllList = async function(req, res){
+   
+    Division.findAll({ attributes: ['id', ['divName', 'text']]})
+        .then(att =>ReS(res, {division:att}))
+        .catch(error => ReS(res, {division:error}));
+}
+module.exports.getAllList = getAllList;

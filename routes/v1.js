@@ -53,28 +53,33 @@ router.delete('/todo/:todo_id', passport.authenticate('jwt', {session:false}), c
 
 
 router.post('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.create);                  // C
+router.post('/bulkattendance',passport.authenticate('jwt', {session:false}), AttendanceController.bulkCreate);                  // C
 router.get('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.getAll);                  // R
 router.get('/getattendancelist',passport.authenticate('jwt', {session:false}), AttendanceController.getAttendanceList);                  // R
 router.get('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.get);     // R
 router.get('/pendingattendance', passport.authenticate('jwt', {session:false}), AttendanceController.getpendinglist);     // R
 router.put('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.update);  // U
 router.delete('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.remove);  // D
+router.get('/addattendancestudentlist', passport.authenticate('jwt', {session:false}), AttendanceController.getAddattendanceStudentList);     // R
 
 
 router.post('/city',passport.authenticate('jwt', {session:false}), CityController.create);                  // C
 router.get('/city',passport.authenticate('jwt', {session:false}), CityController.getAll);                  // R
+router.get('/citylist/:stateId',passport.authenticate('jwt', {session:false}), CityController.getAllList);                  // R
 router.get('/city/:cityId', passport.authenticate('jwt', {session:false}), custom.city, CityController.get);     // R
 router.put('/city/:cityId', passport.authenticate('jwt', {session:false}), custom.city, CityController.update);  // U
 router.delete('/city/:cityId', passport.authenticate('jwt', {session:false}), custom.city, CityController.remove);  // D
 
 router.post('/class',passport.authenticate('jwt', {session:false}), ClassController.create);                  // C
 router.get('/class',passport.authenticate('jwt', {session:false}), ClassController.getAll);                  // R
+router.get('/classlist',passport.authenticate('jwt', {session:false}), ClassController.getAllList);                  // R
 router.get('/class/:classId', passport.authenticate('jwt', {session:false}), custom.class, ClassController.get);     // R
 router.put('/class/:classId', passport.authenticate('jwt', {session:false}), custom.class, ClassController.update);  // U
 router.delete('/class/:classId', passport.authenticate('jwt', {session:false}), custom.class, ClassController.remove);  // D
 
 router.post('/division',passport.authenticate('jwt', {session:false}), DivisionController.create);                  // C
 router.get('/division',passport.authenticate('jwt', {session:false}), DivisionController.getAll);                  // R
+router.get('/divisionlist',passport.authenticate('jwt', {session:false}), DivisionController.getAllList);                  // R
 router.get('/division/:divisionId', passport.authenticate('jwt', {session:false}), custom.division, DivisionController.get);     // R
 router.put('/division/:divisionId', passport.authenticate('jwt', {session:false}), custom.division, DivisionController.update);  // U
 router.delete('/division/:divisionId', passport.authenticate('jwt', {session:false}), custom.division, DivisionController.remove);  // D
@@ -88,6 +93,7 @@ router.delete('/finalresult/:finalresultId', passport.authenticate('jwt', {sessi
 
 router.post('/state',passport.authenticate('jwt', {session:false}), StateController.create);                  // C
 router.get('/state',passport.authenticate('jwt', {session:false}), StateController.getAll);                  // R
+router.get('/statelist',passport.authenticate('jwt', {session:false}), StateController.getAllList); 
 router.get('/state/:stateId', passport.authenticate('jwt', {session:false}), custom.state, StateController.get);     // R
 router.put('/state/:stateId', passport.authenticate('jwt', {session:false}), custom.state, StateController.update);  // U
 router.delete('/state/:stateId', passport.authenticate('jwt', {session:false}), custom.state, StateController.remove);  // D

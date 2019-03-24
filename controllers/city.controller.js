@@ -71,3 +71,10 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {city:error}));
 }
 module.exports.getAll = getAll;
+const getAllList = async function(req, res){
+    let stateId = req.params.stateId;
+    City.findAll({where:{stateId:stateId}, attributes: ['id', ['cityName', 'text']]})
+        .then(att =>ReS(res, {city:att}))
+        .catch(error => ReS(res, {city:error}));
+}
+module.exports.getAllList = getAllList;

@@ -21,7 +21,7 @@ module.exports.create = create;
 const get = async function(req, res){
     let testmarksId = req.params.testmarksId;
     [err, testmarksObj] = await to(Testmarks.findById(testmarksId));
-    if(err) return ReE(res, err, 422);
+    if(err)  return ReE(res, err, 422);
 
     let testmarksJson = testmarksObj.toWeb();
    
