@@ -3,8 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   const Attendance = sequelize.define('Attendance', {
     id: {
       type: DataTypes.BIGINT,
+      autoIncrement: true, // Automatically gets converted to SERIAL for postgres
       primaryKey: true,
-      autoIncrement: true // Automatically gets converted to SERIAL for postgres
     },
     studentId:{
       type: DataTypes.BIGINT,

@@ -30,9 +30,7 @@ const bulkCreate = async function(req, res){
     console.log(attendanceInfo);
     Attendance.bulkCreate(attendanceInfo).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
       
-      }).then(Attendance => {
-        console.log(Attendance) // ... in order to get the array of user objects
-      })
+      }).then(att =>{return ReS(res, {attendance:att})})
    
 }
 module.exports.bulkCreate = bulkCreate;
@@ -67,6 +65,41 @@ const get = async function(req, res){
     
 }
 module.exports.get = get;
+
+const getByRecord = async function(req, res){
+    let classID = req.query.classId;
+    let divID = req.query.divId;
+    let selectedDate = req.query.date;
+  
+   Attendance.findAll({where:{classId:classID,divId:divID,attendanceDate:selectedDate},
+        include: [{
+        model: Student,
+        as: 'AttendanceStudent',
+       attributes: ['rollNo','firstName','lastName'],
+       required: false,
+    },
+    {
+        model: Class,
+        as: 'AttendanceClass', 
+       attributes: ['className'],
+       required: false, 
+    },
+    {
+        model: Division,
+        as: 'AttendanceDivision', 
+       attributes: ['divName'],
+       required: false,
+    },{
+        model: Teacher,
+        as: 'AttendanceClassTeacher', 
+       attributes: ['firstName','lastName'],
+       required: false,
+    }],}).then(att =>ReS(res, {attendancestudentList:att}))
+    .catch(error => ReS(res, {attendancestudentList:error}));
+    
+}
+module.exports.getByRecord = getByRecord;
+
 
 const update = async function(req, res){
     let err, attendanceObj, data

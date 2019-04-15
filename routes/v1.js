@@ -56,6 +56,7 @@ router.post('/attendance',passport.authenticate('jwt', {session:false}), Attenda
 router.post('/bulkattendance',passport.authenticate('jwt', {session:false}), AttendanceController.bulkCreate);                  // C
 router.get('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.getAll);                  // R
 router.get('/getattendancelist',passport.authenticate('jwt', {session:false}), AttendanceController.getAttendanceList);                  // R
+router.get('/getbyrecord',passport.authenticate('jwt', {session:false}), AttendanceController.getByRecord);                  // R
 router.get('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.get);     // R
 router.get('/pendingattendance', passport.authenticate('jwt', {session:false}), AttendanceController.getpendinglist);     // R
 router.put('/attendance/:attendanceId', passport.authenticate('jwt', {session:false}), custom.attendance, AttendanceController.update);  // U
