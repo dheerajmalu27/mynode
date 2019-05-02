@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       autoIncrement: true, // Automatically gets converted to SERIAL for postgres
       primaryKey: true,
+      allowNull: false,
     },
     studentId:{
       type: DataTypes.BIGINT,

@@ -10,7 +10,7 @@ const { to, ReE, ReS }  = require('../services/util.service');
 const create = async function(req, res){
     let err, attendanceObj;
     let attendanceInfo = req.body;
-    console.log(attendanceInfo);
+   
     [err, attendanceObj] = await to(Attendance.create(attendanceInfo));
     if(err) return ReE(res, err, 422);
     
@@ -27,8 +27,10 @@ module.exports.create = create;
 const bulkCreate = async function(req, res){
     
     let attendanceInfo = req.body;
-    console.log(attendanceInfo);
-    Attendance.bulkCreate(attendanceInfo).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
+    
+    Attendance.bulkCreate(attendanceInfo, {
+        updateOnDuplicate: true
+    }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
       
       }).then(att =>{return ReS(res, {attendance:att})})
    
@@ -105,7 +107,7 @@ const update = async function(req, res){
     let err, attendanceObj, data
     attendanceObj = req.attendance;
     data = req.body;
-    console.log("data"+data);
+    
     attendanceObj.set(data);
  
     [err, attendanceObj] = await to(attendanceObj.save());
@@ -170,7 +172,7 @@ module.exports.getpendinglist = getpendinglist;
 
 const getAttendanceList = async function(req, res){
     db.sequelize.query('SELECT `classId`, `divId`, `className`, `divName`, `teacherName`, `teacherId`, `selectedDate`, `totalPresent`, `total` FROM `attendancelistview` ',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
-              console.log(response); 
+             
                 res.json(response);
                }).error(function(err){
                   res.json(err);
@@ -178,8 +180,6 @@ const getAttendanceList = async function(req, res){
 }
 module.exports.getAttendanceList = getAttendanceList;
 const getAddattendanceStudentList = async function(req, res){
-    console.log(req);
-
     let classId = req.query.classId;
     let divId = req.query.divId;
     let AttDate = req.query.date;

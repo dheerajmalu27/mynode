@@ -14,10 +14,10 @@ const TeacherController = require('../controllers/teacher.controller');
 const TeachersubjectController = require('../controllers/teachersubject.controller');
 const TestController = require('../controllers/test.controller');
 const TestmarksController = require('../controllers/testmarks.controller');
-
+const HolidaysController = require('../controllers/holidays.controller');
 const TodoController = require('../controllers/todo.controller');
 const HomeController 	= require('../controllers/home.controller');
-
+const TimetableController 	= require('../controllers/timetable.controller');
 const custom 	        = require('./../middleware/custom');
 
 const passport      	= require('passport');
@@ -38,19 +38,14 @@ router.put(     '/users',           passport.authenticate('jwt', {session:false}
 router.delete(  '/users',           passport.authenticate('jwt', {session:false}), UserController.remove);     // D
 router.post(    '/users/login',     UserController.login);
 
-// router.post(    '/companies',             passport.authenticate('jwt', {session:false}), CompanyController.create);                  // C
-// router.get(     '/companies',             passport.authenticate('jwt', {session:false}), CompanyController.getAll);                  // R
-
-// router.get(     '/companies/:company_id', passport.authenticate('jwt', {session:false}), custom.company, CompanyController.get);     // R
-// router.put(     '/companies/:company_id', passport.authenticate('jwt', {session:false}), custom.company, CompanyController.update);  // U
-// router.delete(  '/companies/:company_id', passport.authenticate('jwt', {session:false}), custom.company, CompanyController.remove);  // D
-
 router.post(    '/todo',             passport.authenticate('jwt', {session:false}), TodoController.create);                  // C
 router.get(     '/todo',             passport.authenticate('jwt', {session:false}), TodoController.getAll);                  // R
 router.get('/todo/:todo_id', passport.authenticate('jwt', {session:false}), custom.todo, TodoController.get);     // R
 router.put('/todo/:todo_id', passport.authenticate('jwt', {session:false}), custom.todo, TodoController.update);  // U
 router.delete('/todo/:todo_id', passport.authenticate('jwt', {session:false}), custom.todo, TodoController.remove);  // D
 
+
+router.get('/dashboard',passport.authenticate('jwt', {session:false}), HomeController.getDashBoardData);                  // R
 
 router.post('/attendance',passport.authenticate('jwt', {session:false}), AttendanceController.create);                  // C
 router.post('/bulkattendance',passport.authenticate('jwt', {session:false}), AttendanceController.bulkCreate);                  // C
@@ -86,6 +81,15 @@ router.put('/division/:divisionId', passport.authenticate('jwt', {session:false}
 router.delete('/division/:divisionId', passport.authenticate('jwt', {session:false}), custom.division, DivisionController.remove);  // D
 
 
+router.post('/holidays',passport.authenticate('jwt', {session:false}), HolidaysController.create);                  // C
+router.get('/holidays',passport.authenticate('jwt', {session:false}), HolidaysController.getAll);                  // R
+router.get('/holidays',passport.authenticate('jwt', {session:false}), HolidaysController.getAllList);                  // R
+router.get('/holidays/:Id', passport.authenticate('jwt', {session:false}), custom.holidays, HolidaysController.get);     // R
+router.put('/holidays/:Id', passport.authenticate('jwt', {session:false}), custom.holidays, HolidaysController.update);  // U
+router.delete('/holidays/:Id', passport.authenticate('jwt', {session:false}), custom.holidays, HolidaysController.remove);  // D
+
+
+
 router.post('/finalresult',passport.authenticate('jwt', {session:false}), FinalresultController.create);                  // C
 router.get('/finalresult',passport.authenticate('jwt', {session:false}), FinalresultController.getAll);                  // R
 router.get('/finalresult/:finalresultId', passport.authenticate('jwt', {session:false}), custom.finalresult, FinalresultController.get);     // R
@@ -110,7 +114,8 @@ router.put('/student/:studentId', passport.authenticate('jwt', {session:false}),
 router.delete('/student/:studentId', passport.authenticate('jwt', {session:false}), custom.student, StudentController.remove);  // D
 
 router.post('/subject',passport.authenticate('jwt', {session:false}), SubjectController.create);                  // C
-router.get('/subject',passport.authenticate('jwt', {session:false}), SubjectController.getAll);                  // R
+router.get('/subject',passport.authenticate('jwt', {session:false}), SubjectController.getAll);
+router.get('/getsubjecttestlist',passport.authenticate('jwt', {session:false}), SubjectController.getSubjectTestList);                  // R
 router.get('/subject/:finalresultId', passport.authenticate('jwt', {session:false}), custom.subject, SubjectController.get);     // R
 router.put('/subject/:finalresultId', passport.authenticate('jwt', {session:false}), custom.subject, SubjectController.update);  // U
 router.delete('/subject/:finalresultId', passport.authenticate('jwt', {session:false}), custom.subject, SubjectController.remove);  // D
@@ -129,16 +134,18 @@ router.put('/teachersubject/:teachersubjectId', passport.authenticate('jwt', {se
 router.delete('/teachersubject/:teachersubjectId', passport.authenticate('jwt', {session:false}), custom.teachersubject, TeachersubjectController.remove);  // D
 
 router.post('/test',passport.authenticate('jwt', {session:false}), TestController.create);                  // C
-router.get('/test',passport.authenticate('jwt', {session:false}), TestController.getAll);                  // R
+router.get('/test',passport.authenticate('jwt', {session:false}), TestController.getAll); 
+router.get('/testlist',passport.authenticate('jwt', {session:false}), TestController.getAllList);                  // R
 router.get('/test/:testId', passport.authenticate('jwt', {session:false}), custom.test, TestController.get);     // R
 router.put('/test/:testId', passport.authenticate('jwt', {session:false}), custom.test, TestController.update);  // U
 router.delete('/test/:testId', passport.authenticate('jwt', {session:false}), custom.test, TestController.remove);  // D
 
 
-
-
+router.get('/getbyrecordtestmarks',passport.authenticate('jwt', {session:false}), TestmarksController.getByRecord);                  // R
+router.post('/bulktestmarks',passport.authenticate('jwt', {session:false}), TestmarksController.bulkCreate);                  // C
 router.post('/testmarks',passport.authenticate('jwt', {session:false}), TestmarksController.create);                  // C
 router.get('/testmarks',passport.authenticate('jwt', {session:false}), TestmarksController.getAll);                  // R
+router.get('/getaddtestmarkstudentlist', passport.authenticate('jwt', {session:false}), TestmarksController.getAddTestmarkStudentList);     // R
 router.get('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.get);     // R
 router.put('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.update);  // U
 router.delete('/testmarks/:testmarksId', passport.authenticate('jwt', {session:false}), custom.testmarks, TestmarksController.remove);  // D
@@ -147,7 +154,9 @@ router.get('/gettestmarkslist', passport.authenticate('jwt', {session:false}), T
 
 router.get('/dash', passport.authenticate('jwt', {session:false}),HomeController.Dashboard)
 
-
+router.post('/bulktimetable',passport.authenticate('jwt', {session:false}), TimetableController.bulkCreate);                  // C
+router.get('/gettimetable',passport.authenticate('jwt', {session:false}), TimetableController.getClassTimeTable); 
+router.get('/gettimetablelist',passport.authenticate('jwt', {session:false}), TimetableController.getTimeTableBatchList); 
 //********* API DOCUMENTATION **********
 // router.use('/docs/api.json',            express.static(path.join(__dirname, '/../public/v1/documentation/api.json')));
 // router.use('/docs',                     express.static(path.join(__dirname, '/../public/v1/documentation/dist')));

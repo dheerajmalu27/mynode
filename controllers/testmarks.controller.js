@@ -1,4 +1,10 @@
 const { Testmarks }          = require('../models');
+const { Student }       = require('../models');
+const { Class }         = require('../models');
+const { Division }      = require('../models');
+const { Teacher }       = require('../models');
+const { Subject }       = require('../models');
+const { Test }         = require('../models');
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
 const db  = require('../models/index').db;
@@ -80,3 +86,111 @@ const gettestmarkslist = async function(req, res){
            });
 }
 module.exports.gettestmarkslist = gettestmarkslist;
+
+
+const getAddTestmarkStudentList = async function(req, res){
+    let classId = req.query.classId;
+    let divId = req.query.divId;
+    let testId = req.query.testId;
+    let subId = req.query.subId;
+    let teacherId=1;
+    let teacherName='admin';
+    console.log(req.query);
+
+    db.sequelize.query('SELECT count(id) as counter FROM `testmarks` WHERE `classId`='+classId+' AND `divId`='+divId+' AND `testId`='+testId+' AND `subId`='+subId, { type: db.sequelize.QueryTypes.SELECT }).then(function(checkRecord){
+     console.log(checkRecord);
+        if(checkRecord[0].counter<=0){
+
+            db.sequelize.query('SELECT `teacherId`, `teacherName`,subName FROM `subjectteacherview` WHERE  classId='+classId+' AND divId='+divId,{ type: db.sequelize.QueryTypes.SELECT }).then(function(subjectTeacherRecord){
+               
+                if(subjectTeacherRecord[0].counter>=0){
+                    teacherId=subjectTeacherRecord[0].teacherId;
+                    teacherName=subjectTeacherRecord[0].teacherName;
+                  
+                }
+                db.sequelize.query('SELECT stl.`id` as studentId, stl.`studentName`, stl.`classId`, stl.`className`,stl.`divId`, stl.`divName`, stl.`rollNo`,'+testId+' as testId,sb.`id` as subId,'+teacherId+' as teacherId,"'+teacherName+'" as teacherName,sb.`subName` as subName,0 as getMarks,100 as totalMarks  FROM `studentlistview` stl ,subject sb WHERE stl.classId='+classId+' AND stl.divId='+divId+' AND sb.id='+subId+' ORDER BY stl.rollNo',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
+               
+                    res.json(response);
+                   }).error(function(err){
+                      res.json(err);
+               });
+               }).error(function(err){
+                  res.json(err);
+           });
+            
+
+        }
+        
+       }).error(function(err){
+          res.json(err);
+    });
+
+   
+}
+module.exports.getAddTestmarkStudentList = getAddTestmarkStudentList;
+
+const bulkCreate = async function(req, res){
+    
+    let TestMarkData= req.body;
+    console.log(TestMarkData);
+    Testmarks.bulkCreate(TestMarkData, {
+        updateOnDuplicate: true
+        // fields: ['studentId','classId','divId','testId','subId','teacherId','getMarks','totalMarks'],
+        // updateOnDuplicate:['studentId','classId','divId','testId','subId']
+
+    }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
+    
+      }).then(testmark =>{return ReS(res, {testmarks:testmark})})
+   
+}
+module.exports.bulkCreate = bulkCreate;
+
+
+const getByRecord = async function(req, res){
+    let classID = req.query.classId;
+    let divID = req.query.divId;
+    let testID = req.query.testId;
+    let subID = req.query.subId;
+   
+    Testmarks.findAll({where:{classId:classID,divId:divID,testId:testID,subId:subID},
+        include: [{
+        model: Student,
+        as: 'TestmarksStudent',
+       attributes: ['rollNo','firstName','lastName'],
+       required: false,
+    },
+    {
+        model: Class,
+        as: 'TestmarksClass', 
+       attributes: ['className'],
+       required: false, 
+    },
+    {
+        model: Division,
+        as: 'TestmarksDivision', 
+       attributes: ['divName'],
+       required: false,
+    },
+    {
+        model: Test,
+        as: 'TestmarksTest', 
+       attributes: ['testName'],
+       required: false,
+    },
+    {
+        model: Subject,
+        as: 'TestmarksSubject', 
+       attributes: ['subName'],
+       required: false,
+    },
+    {
+        model: Teacher,
+        as: 'TestmarksTeacher', 
+       attributes: ['firstName','lastName'],
+       required: false,
+    }],}).then(tm =>ReS(res, {testmarksstudentlist:tm}))
+    .catch(error => ReS(res, {testmarksstudentlist:error}));
+    
+}
+module.exports.getByRecord = getByRecord;
+

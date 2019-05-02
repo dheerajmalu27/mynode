@@ -1,23 +1,23 @@
 const {TE, to}              = require('../services/util.service');
 module.exports = (sequelize, DataTypes) => {
-  const Division = sequelize.define('Division', {
+  const Holidays = sequelize.define('Holidays', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true ,// Automatically gets converted to SERIAL for postgres
+      autoIncrement: true, // Automatically gets converted to SERIAL for postgres
       allowNull: false,
     },
-    divName: DataTypes.STRING,
+    holidayDate: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   }, {
     freezeTableName: true,
   });
-  // Division.associate = function(models) {
-   
+  // Class.associate = function(models) {
+    
   // };
-  Division.prototype.toWeb = function (pw) {
+  Holidays.prototype.toWeb = function (pw) {
     let json = this.toJSON();
     return json;
 };
-  return Division;
+  return Holidays;
 };

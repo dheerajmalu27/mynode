@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.BIGINT,
       primaryKey: true,
-      autoIncrement: true // Automatically gets converted to SERIAL for postgres
+      autoIncrement: true, // Automatically gets converted to SERIAL for postgres
+      allowNull: false,
     },
     subName: DataTypes.STRING,
     active: DataTypes.BOOLEAN

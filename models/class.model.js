@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true // Automatically gets converted to SERIAL for postgres
+      autoIncrement: true, // Automatically gets converted to SERIAL for postgres
+      allowNull: false,
     },
     className: DataTypes.STRING,
     subjectIds: DataTypes.TEXT,

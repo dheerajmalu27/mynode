@@ -8,6 +8,7 @@ const State 	    = require('./../models').State;
 const Student 	    = require('./../models').Student;
 const Subject 	    = require('./../models').Subject;
 const Teacher	    = require('./../models').Teacher;
+const Holidays   = require('./../models').Holidays;
 const Teachersubject 	    = require('./../models').Teachersubject;
 const Test 	    = require('./../models').Test;
 const Testmarks 	    = require('./../models').Testmarks;
@@ -84,6 +85,20 @@ let division = async function (req, res, next) {
     next();
 }
 module.exports.division = division;
+
+let holidays = async function (req, res, next) {
+    let holidayId, err, holidaysObj;
+    holidayId = req.params.Id;
+
+    [err, holidaysObj] = await to(Holidays.findOne({where:{id:holidayId}}));
+    if(err) return ReE(res, "err finding holidays");
+
+    if(!holidaysObj) return ReE(res, "holidays not found with id: "+holidayId);
+   
+    req.holiday = holidaysObj;
+    next();
+}
+module.exports.holidays = holidays;
 
 let finalresult = async function (req, res, next) {
     let finalresultId, err, finalresultObj;

@@ -1,7 +1,7 @@
 const { Subject }          = require('../models');
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
-
+const db  = require('../models/index').db;
 const create = async function(req, res){
     let err, subjectObj;
     let subjectInfo = req.body;
@@ -61,3 +61,23 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {subject:error}));
 }
 module.exports.getAll = getAll;
+
+const getSubjectTestList = async function(req, res){
+    let testSubjectData=new Object();
+    console.log(req.query)
+;    let classId = req.query.classId;
+    db.sequelize.query('SELECT sb.id, sb.subName as text FROM subject sb WHERE sb.active=1 AND FIND_IN_SET(sb.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id='+classId+'))' , { type: db.sequelize.QueryTypes.SELECT }).then(function(subjectdata){
+        testSubjectData.subjectlist=subjectdata;
+        db.sequelize.query('SELECT ts.id, ts.testName as text FROM test ts WHERE ts.active=1 AND FIND_IN_SET(ts.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id='+classId+'))', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
+            testSubjectData.testlist=testdata;
+            res.json(testSubjectData);
+           }).error(function(err){
+              res.json(err);
+        });
+       
+       }).error(function(err){
+          res.json(err);
+    });
+  
+}
+module.exports.getSubjectTestList = getSubjectTestList;

@@ -61,3 +61,10 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {test:error}));
 }
 module.exports.getAll = getAll;
+const getAllList = async function(req, res){
+   
+    Test.findAll({ attributes: ['id', ['testName', 'text']]})
+        .then(tst =>ReS(res, {test:tst}))
+        .catch(error => ReS(res, {test:error}));
+}
+module.exports.getAllList = getAllList;
