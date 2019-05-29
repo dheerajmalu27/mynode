@@ -201,3 +201,25 @@ const getAddattendanceStudentList = async function(req, res){
    
 }
 module.exports.getAddattendanceStudentList = getAddattendanceStudentList;
+
+
+const getAddattendanceDateWiseReport = async function(req, res){
+    let startDate = req.query.startDate;
+    let endDate = req.query.endDate;
+    let classId = req.query.classId;
+    let divId = req.query.divId;
+    db.sequelize.query("SELECT GROUP_CONCAT(DISTINCT CONCAT('max(CASE WHEN ca.attendanceDate = ''',date_format(attendanceDate, '%Y-%m-%d'), ''' THEN coalesce(ca.attendanceResult, ''P'') END) AS `', date_format(attendanceDate, '%Y-%m-%d'), '`')) as dateColumn FROM attendance where attendanceDate>='"+startDate+"' and attendanceDate <= '"+endDate+"' and classId='"+classId+"' and divId='"+divId+"'", { type: db.sequelize.QueryTypes.SELECT }).then(function(checkRecord){
+     console.log(checkRecord[0]);
+    
+        if(checkRecord[0]!=''){
+            db.sequelize.query("SELECT ca.studentName,ca.rollNo,ca.classId,ca.divId,"+checkRecord[0].dateColumn+"  from (select att.attendanceDate,att.attendanceResult, sv.studentName, sv.rollNo, sv.classId, sv.className, sv.divId, sv.divName from attendance att cross join studentlistview sv) ca where ca.attendanceDate>='"+startDate+"' and ca.attendanceDate <= '"+endDate+"' and ca.classId="+classId+" AND ca.divId="+divId+" group by ca.studentname, ca.rollNo, ca.classId order by ca.rollNo",{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){              
+                res.json(response);
+               }).error(function(err){
+                  res.json(err);
+           });
+        }       
+       }).error(function(err){
+          res.json(err);
+    }); 
+}
+module.exports.getAddattendanceDateWiseReport = getAddattendanceDateWiseReport;

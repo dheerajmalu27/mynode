@@ -1,7 +1,7 @@
 const { Test }          = require('../models');
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
-
+const db  = require('../models/index').db;
 const create = async function(req, res){
     let err, testObj;
     let testInfo = req.body;
@@ -68,3 +68,15 @@ const getAllList = async function(req, res){
         .catch(error => ReS(res, {test:error}));
 }
 module.exports.getAllList = getAllList;
+
+
+const testClassReportList = async function(req, res){
+    let testClassList=new Object();
+    db.sequelize.query('CALL testwiseclasslist();').then(function(testwiseclasslist){
+        testClassList.testreportclasslist=testwiseclasslist;
+        res.json(testClassList);
+       }).error(function(err){
+          res.json(err);
+    });
+}
+module.exports.testClassReportList = testClassReportList;
