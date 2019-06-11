@@ -1,3 +1,5 @@
+const multer = require('multer');
+
 const express 		= require('express');
 const logger 	    = require('morgan');
 const bodyParser 	= require('body-parser');
@@ -31,6 +33,14 @@ models.sequelize.authenticate().then(() => {
 })
 .catch(err => {
     console.error('Unable to connect to SQL database:',CONFIG.db_name, err);
+});
+var Storage = multer.diskStorage({
+  destination: function(req, file, callback) {
+      callback(null, "./Images");
+  },
+  filename: function(req, file, callback) {
+      callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+  }
 });
 if(CONFIG.app==='dev'){
     
