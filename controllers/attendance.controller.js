@@ -27,13 +27,17 @@ module.exports.create = create;
 const bulkCreate = async function(req, res){
     
     let attendanceInfo = req.body;
-    
+    console.log("test");
+    console.log(req.body);
+
     Attendance.bulkCreate(attendanceInfo, {
-        updateOnDuplicate: true
-    }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
+        // updateOnDuplicate: true
+    }).then(att =>{return ReS(res, {attendance:att})})
+      .catch(error =>{
+
       
-      }).then(att =>{return ReS(res, {attendance:att})})
-   
+        console.log(error);
+         ReS(res, {attendance:error})});
 }
 module.exports.bulkCreate = bulkCreate;
 
@@ -164,19 +168,21 @@ const getpendinglist = async function(req, res){
     db.sequelize.query('CALL attendancependinglist();').then(function(response){
                
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
 }
 module.exports.getpendinglist = getpendinglist;
 
 const getAttendanceList = async function(req, res){
-    db.sequelize.query('SELECT `classId`, `divId`, `className`, `divName`, `teacherName`, `teacherId`, `selectedDate`, `totalPresent`, `total` FROM `attendancelistview` ',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
-             
-                res.json(response);
-               }).error(function(err){
-                  res.json(err);
-           });
+           db.sequelize.query('SELECT `classId`, `divId`, `className`, `divName`, `teacherName`, `teacherId`, `selectedDate`, `totalPresent`, `total` FROM `attendancelistview` ',{ type: db.sequelize.QueryTypes.SELECT })
+  .then(result => {
+    res.json(result);
+  })
+  .catch(error => {
+    res.json(error);
+    // Handle any errors that occurred during the query
+  });
 }
 module.exports.getAttendanceList = getAttendanceList;
 const getAddattendanceStudentList = async function(req, res){
@@ -189,12 +195,12 @@ const getAddattendanceStudentList = async function(req, res){
             db.sequelize.query('SELECT `studentId`, `studentName`, `classId`,`className`, `divId`,`divName`, `rollNo`, `classTeacherId`,DATE("'+AttDate+'") as attendanceDate,"true" as attendanceResult FROM `addattendancestudentlistview` where classId='+classId+' AND divId='+divId+' ORDER BY rollNo',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
                
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
         }
         
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
 
@@ -214,11 +220,11 @@ const getAddattendanceDateWiseReport = async function(req, res){
         if(checkRecord[0]!=''){
             db.sequelize.query("SELECT ca.studentName,ca.rollNo,ca.classId,ca.divId,"+checkRecord[0].dateColumn+"  from (select att.attendanceDate,att.attendanceResult, sv.studentName, sv.rollNo, sv.classId, sv.className, sv.divId, sv.divName from attendance att cross join studentlistview sv) ca where ca.attendanceDate>='"+startDate+"' and ca.attendanceDate <= '"+endDate+"' and ca.classId="+classId+" AND ca.divId="+divId+" group by ca.studentname, ca.rollNo, ca.classId order by ca.rollNo",{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){              
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
         }       
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     }); 
 }

@@ -26,7 +26,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let testmarksId = req.params.testmarksId;
-    [err, testmarksObj] = await to(Testmarks.findById(testmarksId));
+    [err, testmarksObj] = await to(Testmarks.findByPk(testmarksId));
     if(err)  return ReE(res, err, 422);
 
     let testmarksJson = testmarksObj.toWeb();
@@ -71,7 +71,7 @@ const gettestmarkspendinglist = async function(req, res){
     db.sequelize.query('SELECT * FROM testmarkspendingteacherlistview',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
                
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
 }
@@ -81,7 +81,7 @@ const gettestmarkslist = async function(req, res){
     db.sequelize.query('SELECT * FROM testmarkslistview',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
                
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
 }
@@ -111,17 +111,17 @@ const getAddTestmarkStudentList = async function(req, res){
                 db.sequelize.query('SELECT stl.`id` as studentId, stl.`studentName`, stl.`classId`, stl.`className`,stl.`divId`, stl.`divName`, stl.`rollNo`,'+testId+' as testId,sb.`id` as subId,'+teacherId+' as teacherId,"'+teacherName+'" as teacherName,sb.`subName` as subName,0 as getMarks,100 as totalMarks  FROM `studentlistview` stl ,subject sb WHERE stl.classId='+classId+' AND stl.divId='+divId+' AND sb.id='+subId+' ORDER BY stl.rollNo',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
                
                     res.json(response);
-                   }).error(function(err){
+                   }).catch(function(err){
                       res.json(err);
                });
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
             
 
         }
         
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
 
@@ -134,13 +134,11 @@ const bulkCreate = async function(req, res){
     let TestMarkData= req.body;
     console.log(TestMarkData);
     Testmarks.bulkCreate(TestMarkData, {
-        updateOnDuplicate: true
+        // updateOnDuplicate: true
         // fields: ['studentId','classId','divId','testId','subId','teacherId','getMarks','totalMarks'],
         // updateOnDuplicate:['studentId','classId','divId','testId','subId']
 
-    }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
-    
-      }).then(testmark =>{return ReS(res, {testmarks:testmark})})
+    }).then(testmark =>{return ReS(res, {testmarks:testmark})}).catch(error =>{return ReS(res, {error})})
    
 }
 module.exports.bulkCreate = bulkCreate;

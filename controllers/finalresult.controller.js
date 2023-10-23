@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let finalresultId = req.params.finalresultId;
-    [err, finalresultObj] = await to(Finalresult.findById(finalresultId));
+    [err, finalresultObj] = await to(Finalresult.findByPk(finalresultId));
     if(err) return ReE(res, err, 422);
 
     let finalresultJson = finalresultObj.toWeb();

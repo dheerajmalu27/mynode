@@ -23,13 +23,13 @@ const getDashBoardData = async function (req, res) {
 				console.log(dashboarddata);
 				res.json(dashboarddata);
 
-			}).error(function (err) {
+			}).catch(function (err) {
 				res.json(err);
 			});
-		}).error(function (err) {
+		}).catch(function (err) {
 			res.json(err);
 		});
-	}).error(function (err) {
+	}).catch(function (err) {
 		res.json(err);
 	});
 }

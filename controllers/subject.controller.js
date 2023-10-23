@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let subjectId = req.params.subjectId;
-    [err, subjectObj] = await to(Subject.findById(subjectId));
+    [err, subjectObj] = await to(Subject.findByPk(subjectId));
     if(err) return ReE(res, err, 422);
 
     let subjectJson = subjectObj.toWeb();
@@ -71,11 +71,11 @@ const getSubjectTestList = async function(req, res){
         db.sequelize.query('SELECT ts.id, ts.testName as text FROM test ts WHERE ts.active=1 AND FIND_IN_SET(ts.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id='+classId+'))', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
             testSubjectData.testlist=testdata;
             res.json(testSubjectData);
-           }).error(function(err){
+           }).catch(function(err){
               res.json(err);
         });
        
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
   

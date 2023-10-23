@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let stateId = req.params.stateId; 
-    [err, stateObj] = await to(State.findById(stateId));
+    [err, stateObj] = await to(State.findByPk(stateId));
     if(err) return ReE(res, err, 422);
 
     let stateJson = stateObj.toWeb();

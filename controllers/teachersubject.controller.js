@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let teachersubjectId = req.params.teachersubjectId;
-    [err, teachersubjectObj] = await to(Teachersubject.findById(teachersubjectId));
+    [err, teachersubjectObj] = await to(Teachersubject.findByPk(teachersubjectId));
     if(err) return ReE(res, err, 422);
 
     let teachersubjectJson = teachersubjectObj.toWeb();

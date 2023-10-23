@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let divisionId = req.params.divisionId;
-    [err, divisionObj] = await to(Division.findById(divisionId));
+    [err, divisionObj] = await to(Division.findByPk(divisionId));
     if(err) return ReE(res, err, 422);
 
     let divisionJson = divisionObj.toWeb();

@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let classId = req.params.classId;
-    [err, classObj] = await to(Class.findById(classId));
+    [err, classObj] = await to(Class.findByPk(classId));
     if(err) return ReE(res, err, 422);
 
     let classJson = classObj.toWeb();

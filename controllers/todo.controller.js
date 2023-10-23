@@ -22,7 +22,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let todo_id = req.params.todo_id;
-    [err, todos] = await to(Todo.findById(todo_id));
+    [err, todos] = await to(Todo.findByPk(todo_id));
     if(err) return ReE(res, err, 422);
 
     let todo_json = todos.toWeb();

@@ -5,10 +5,12 @@ const logger 	    = require('morgan');
 const bodyParser 	= require('body-parser');
 const passport      = require('passport');
 const pe            = require('parse-error');
+
 const cors          = require('cors');
 var http = require('http');
 const v1    = require('./routes/v1');
 const app   = express();
+const swagger = require('./swagger');
 
 const CONFIG = require('./config/config');
 var server = http.createServer(app);
@@ -51,7 +53,7 @@ if(CONFIG.app==='dev'){
 app.use(cors());
 
 app.use('/api', v1);
-
+swagger(app);
 app.use('/', function(req, res){
 	res.statusCode = 200;//send the appropriate status code
 	res.json({status:"success", message:"Parcel Pending API", data:{}})

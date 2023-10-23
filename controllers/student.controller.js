@@ -25,7 +25,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let studentId = req.params.studentId;
-    [err, studentObj] = await to(Student.findById(studentId));
+    [err, studentObj] = await to(Student.findByPk(studentId));
     if(err) return ReE(res, err, 422);
 
     let studentJson = studentObj.toWeb();
@@ -40,7 +40,7 @@ const getprofile = async function(req, res){
 //     db.sequelize.query('CALL test_proc();').then(function(response){
 //         console.log(response);
 //         res.json(response);
-//        }).error(function(err){
+//        }).catch(function(err){
 //           res.json(err);
 //    });
 
@@ -77,26 +77,26 @@ const getprofile = async function(req, res){
                             db.sequelize.query('SELECT mp.* FROM messageportal as mp WHERE mp.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(messageportal){
                                 studentData.messageportal=messageportal;
                                 res.json(studentData);
-                               }).error(function(err){
+                               }).catch(function(err){
                                   res.json(err);
                             });
                            
-                           }).error(function(err){
+                           }).catch(function(err){
                               res.json(err);
                         });
                        
-                       }).error(function(err){
+                       }).catch(function(err){
                           res.json(err);
                     });
-                   }).error(function(err){
+                   }).catch(function(err){
                       res.json(err);
                 });
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
             });
 
 
-           }).error(function(err){
+           }).catch(function(err){
               res.json(err);
         });
        
@@ -142,7 +142,7 @@ const getAll = async function(req, res){
         studentData.student=student;
         
         res.json(studentData);
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
 }
@@ -151,7 +151,7 @@ const getAllAbsentStudent = async function(req, res){
     db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM `absentstudentlistview`',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
               console.log(response); 
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
 }
@@ -161,7 +161,7 @@ const getTodayAbsentStudent = async function(req, res){
     db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM absentstudentlistview where attendanceDate=CURDATE()',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
                
                 res.json(response);
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
            });
 }

@@ -23,7 +23,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let teacherId = req.params.teacherId;
-    [err, teacherObj] = await to(Teacher.findById(teacherId));
+    [err, teacherObj] = await to(Teacher.findByPk(teacherId));
     if(err) return ReE(res, err, 422);
 
     let teacherJson = teacherObj.toWeb();
@@ -61,22 +61,22 @@ const getprofile = async function(req, res){
                             teacherData.timetable=timetable;
                             
                             res.json(teacherData);
-                           }).error(function(err){
+                           }).catch(function(err){
                               res.json(err);
                         });
                        
-                       }).error(function(err){
+                       }).catch(function(err){
                           res.json(err);
                     });
-                   }).error(function(err){
+                   }).catch(function(err){
                       res.json(err);
                 });
-               }).error(function(err){
+               }).catch(function(err){
                   res.json(err);
             });
 
 
-           }).error(function(err){
+           }).catch(function(err){
               res.json(err);
         });
        
@@ -119,7 +119,7 @@ const getAll = async function(req, res){
         teacherData.teacher=teacher;
         
         res.json(teacherData);
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
 }

@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let holidaysId = req.params.holidaysId;
-    [err, holidaysObj] = await to(Holidays.findById(holidaysId));
+    [err, holidaysObj] = await to(Holidays.findByPk(holidaysId));
     if(err) return ReE(res, err, 422);
 
     let holidaysJson = holidaysObj.toWeb();

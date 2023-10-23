@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let testId = req.params.testId;
-    [err, testObj] = await to(Test.findById(testId));
+    [err, testObj] = await to(Test.findByPk(testId));
     if(err) return ReE(res, err, 422);
 
     let testJson = testObj.toWeb();
@@ -75,8 +75,23 @@ const testClassReportList = async function(req, res){
     db.sequelize.query('CALL testwiseclasslist();').then(function(testwiseclasslist){
         testClassList.testreportclasslist=testwiseclasslist;
         res.json(testClassList);
-       }).error(function(err){
+       }).catch(function(err){
           res.json(err);
     });
 }
 module.exports.testClassReportList = testClassReportList;
+
+const testClassDivisionReportList = async function(req, res){
+    let testClassDivisionReportListData=new Object();
+    console.log(req.query);
+    let classId = req.query.classId;
+    let testId = req.query.testId;
+    let divId = req.query.divId;
+    db.sequelize.query('SELECT * FROM school.testmarksview where testId='+testId+' and classId='+classId+' and divId='+divId+' order by rollNo, subName', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
+        testClassDivisionReportListData.reportlist=testdata;
+        res.json(testClassDivisionReportListData);
+       }).catch(function(err){
+          res.json(err);
+    });
+}
+module.exports.testClassDivisionReportList = testClassDivisionReportList;

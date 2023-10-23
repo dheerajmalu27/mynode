@@ -20,7 +20,7 @@ module.exports.create = create;
 
 const get = async function(req, res){
     let timetableId = req.params.timetableId;
-    [err, timetableObj] = await to(Timetable.findById(timetableId));
+    [err, timetableObj] = await to(Timetable.findByPk(timetableId));
     if(err) return ReE(res, err, 422);
 
     let timetableJson = timetableObj.toWeb();
@@ -75,7 +75,7 @@ const getTimeTableBatchList = async function(req, res){
         db.sequelize.query('SELECT classId, divId, className, divName FROM timetabledetailview GROUP BY classId, divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(timetabledata){
             TimeTableData.timetabledatalist=timetabledata;
             res.json(TimeTableData);
-           }).error(function(err){
+           }).catch(function(err){
               res.json(err);
         });
 }
@@ -88,7 +88,7 @@ const getClassTimeTable = async function(req, res){
         db.sequelize.query('SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`,SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`,SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE classId='+classId+' and divId='+divId, { type: db.sequelize.QueryTypes.SELECT }).then(function(timetabledata){
             TimeTableData.classtimetabledata=timetabledata;
             res.json(TimeTableData);
-           }).error(function(err){
+           }).catch(function(err){
               res.json(err);
         });
 }
@@ -99,7 +99,7 @@ const bulkCreate = async function(req, res){
     let TimeTableData= req.body;
     console.log(TimeTableData);
     Timetable.bulkCreate(TimeTableData, {
-        updateOnDuplicate: true
+        // updateOnDuplicate: true
        
     }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
     
