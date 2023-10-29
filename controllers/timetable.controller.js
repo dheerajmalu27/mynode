@@ -99,7 +99,7 @@ const bulkCreate = async function(req, res){
     let TimeTableData= req.body;
     console.log(TimeTableData);
     Timetable.bulkCreate(TimeTableData, {
-        // updateOnDuplicate: true
+        updateOnDuplicate: [`id`,`teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`]
        
     }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
     
