@@ -31,11 +31,9 @@ const bulkCreate = async function(req, res){
     console.log(req.body);
 
     Attendance.bulkCreate(attendanceInfo, {
-        // updateOnDuplicate: true
+        updateOnDuplicate: [`id`,`studentId`,`classId`,`divId`,`classTeacherId`,`attendanceDate`,`attendanceResult`,`active`,`createdAt`,`updatedAt`]
     }).then(att =>{return ReS(res, {attendance:att})})
       .catch(error =>{
-
-      
         console.log(error);
          ReS(res, {attendance:error})});
 }

@@ -12,6 +12,7 @@ const Holidays   = require('./../models').Holidays;
 const Teachersubject 	    = require('./../models').Teachersubject;
 const Test 	    = require('./../models').Test;
 const Testmarks 	    = require('./../models').Testmarks;
+const  Timetable        =  require('./../models').Timetable;
 const { to, ReE, ReS } = require('../services/util.service');
 
 let todo = async function (req, res, next) {
@@ -215,3 +216,17 @@ let testmarks = async function (req, res, next) {
 }
 module.exports.testmarks = testmarks;
 
+
+let timetable = async function (req, res, next) {
+    let timetableId, err, testmarksObj;
+    timetableId = req.params.timetableId;
+
+    [err, timetableObj] = await to(Timetable.findOne({where:{id:timetableId}}));
+    if(err) return ReE(res, "err finding testmarks");
+
+    if(!timetableObj) return ReE(res, "Timetable not found with id: "+timetableId);
+   
+    req.timetable = timetableObj;
+    next();
+}
+module.exports.timetable = timetable;

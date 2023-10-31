@@ -45,7 +45,7 @@ module.exports.update = update;
 
 const remove = async function(req, res){
     let timetableObj, err;
-    timetableObj = req.holiday;
+    timetableObj = req.timetable;
 
     [err, timetableObj] = await to(timetableObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete timetable');
@@ -99,7 +99,7 @@ const bulkCreate = async function(req, res){
     let TimeTableData= req.body;
     console.log(TimeTableData);
     Timetable.bulkCreate(TimeTableData, {
-        updateOnDuplicate: [`id`,`teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`]
+        updateOnDuplicate: [`id`,`teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`,`createdAt`,`updatedAt`]
        
     }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
     

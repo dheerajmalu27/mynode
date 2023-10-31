@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     className: DataTypes.STRING,
+    divIds: DataTypes.TEXT,
     subjectIds: DataTypes.TEXT,
     testIds: DataTypes.TEXT,
     active: DataTypes.BOOLEAN

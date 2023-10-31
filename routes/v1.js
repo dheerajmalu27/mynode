@@ -106,6 +106,7 @@ router.get('/classlist', ClassController.getAllList);                  // R
 router.get('/class/:classId',  custom.class, ClassController.get);     // R
 router.put('/class/:classId',  custom.class, ClassController.update);  // U
 router.delete('/class/:classId',  custom.class, ClassController.remove);  // D
+router.get('/classdetails', ClassController.getClassDetails); 
 
 router.post('/division', DivisionController.create);                  // C
 router.get('/division', DivisionController.getAll);                  // R
@@ -149,10 +150,11 @@ router.delete('/student/:studentId',  custom.student, StudentController.remove);
 
 router.post('/subject', SubjectController.create);                  // C
 router.get('/subject', SubjectController.getAll);
+router.get('/subjectlist', SubjectController.getAllList);                  // R
 router.get('/getsubjecttestlist', SubjectController.getSubjectTestList);                  // R
-router.get('/subject/:finalresultId',  custom.subject, SubjectController.get);     // R
-router.put('/subject/:finalresultId',  custom.subject, SubjectController.update);  // U
-router.delete('/subject/:finalresultId',  custom.subject, SubjectController.remove);  // D
+router.get('/subject/:subjectId',  custom.subject, SubjectController.get);     // R
+router.put('/subject/:subjectId',  custom.subject, SubjectController.update);  // U
+router.delete('/subject/:subjectId',  custom.subject, SubjectController.remove);  // D
 
 router.post('/teacher', TeacherController.create);                  // C
 router.get('/teacher', TeacherController.getAll);                  // R
@@ -188,7 +190,8 @@ router.get('/gettestmarkslist',  TestmarksController.gettestmarkslist);     // R
 
 router.get('/dashboard', HomeController.Dashboard)
 
-router.post('/bulktimetable', TimetableController.bulkCreate);                  // C
+router.post('/bulktimetable', TimetableController.bulkCreate); 
+router.delete('/timetable/:timetableId', custom.timetable, TimetableController.remove);  // D
 router.get('/gettimetable', TimetableController.getClassTimeTable); 
 router.get('/gettimetablelist', TimetableController.getTimeTableBatchList); 
 //********* API DOCUMENTATION **********

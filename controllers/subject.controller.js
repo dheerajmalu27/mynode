@@ -61,6 +61,13 @@ const getAll = async function(req, res){
         .catch(error => ReS(res, {subject:error}));
 }
 module.exports.getAll = getAll;
+const getAllList = async function(req, res){
+   
+    Subject.findAll({ attributes: ['id', ['subName', 'text']]})
+        .then(att =>ReS(res, {subject:att}))
+        .catch(error => ReS(res, {subject:error}));
+}
+module.exports.getAllList = getAllList;
 
 const getSubjectTestList = async function(req, res){
     let testSubjectData=new Object();

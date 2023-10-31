@@ -136,7 +136,7 @@ const bulkCreate = async function(req, res){
     Testmarks.bulkCreate(TestMarkData, {
         // updateOnDuplicate: true
         // fields: ['studentId','classId','divId','testId','subId','teacherId','getMarks','totalMarks'],
-        // updateOnDuplicate:['studentId','classId','divId','testId','subId']
+        updateOnDuplicate:['id','studentId','classId','divId','testId','subId','teacherId','getMarks','totalMarks']
 
     }).then(testmark =>{return ReS(res, {testmarks:testmark})}).catch(error =>{return ReS(res, {error})})
    

@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    dayId: DataTypes.BIGINT,
     timeSlot: DataTypes.STRING,
     textData: DataTypes.STRING,
     active: DataTypes.BOOLEAN
