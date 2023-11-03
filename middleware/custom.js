@@ -9,6 +9,7 @@ const Student 	    = require('./../models').Student;
 const Subject 	    = require('./../models').Subject;
 const Teacher	    = require('./../models').Teacher;
 const Holidays   = require('./../models').Holidays;
+const Classteacher 	    = require('./../models').Classteacher;
 const Teachersubject 	    = require('./../models').Teachersubject;
 const Test 	    = require('./../models').Test;
 const Testmarks 	    = require('./../models').Testmarks;
@@ -186,6 +187,19 @@ let teachersubject = async function (req, res, next) {
 }
 module.exports.teachersubject = teachersubject;
 
+let classteacher = async function (req, res, next) {
+    let classteacherId, err, classteacherObj;
+    classteacherId = req.params.classteacherId;
+
+    [err, classteacherObj] = await to(Classteacher.findOne({where:{id:classteacherId}}));
+    if(err) return ReE(res, "err finding classteacher");
+
+    if(!classteacherObj) return ReE(res, "classteacher not found with id: "+classteacherId);
+   
+    req.classteacher = classteacherObj;
+    next();
+}
+module.exports.classteacher = classteacher;
 
 let test = async function (req, res, next) {
     let testId, err, testObj;

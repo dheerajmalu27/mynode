@@ -11,6 +11,7 @@ const StateController = require('../controllers/state.controller');
 const StudentController = require('../controllers/student.controller');
 const SubjectController = require('../controllers/subject.controller');
 const TeacherController = require('../controllers/teacher.controller');
+const ClassteacherController = require('../controllers/classteacher.controller');
 const TeachersubjectController = require('../controllers/teachersubject.controller');
 const TestController = require('../controllers/test.controller');
 const TestmarksController = require('../controllers/testmarks.controller');
@@ -172,6 +173,16 @@ router.put('/teachersubject/:teachersubjectId', passport.authenticate('jwt', {se
 router.delete('/teachersubject/:teachersubjectId', passport.authenticate('jwt', {session:false}),  custom.teachersubject, TeachersubjectController.remove);  // D
 router.get('/teachersubjectlist', passport.authenticate('jwt', {session:false}), TeachersubjectController.teacherSubjectList);
 router.post('/updateteachersubject', passport.authenticate('jwt', {session:false}), TeachersubjectController.updateTeacherSubject);  // U
+
+
+router.post('/classteacher', passport.authenticate('jwt', {session:false}), ClassteacherController.create);                  // C
+router.get('/classteacher', passport.authenticate('jwt', {session:false}), ClassteacherController.getAll);                  // R
+router.get('/classteacher/:classteacherId', passport.authenticate('jwt', {session:false}),  custom.classteacher, ClassteacherController.get);     // R
+router.put('/classteacher/:classteacherId', passport.authenticate('jwt', {session:false}),  custom.classteacher, ClassteacherController.update);  // U
+router.delete('/classteacher/:classteacherId', passport.authenticate('jwt', {session:false}),  custom.classteacher, ClassteacherController.remove);  // D
+// router.get('/classteacherlist', passport.authenticate('jwt', {session:false}), ClassteacherController.teacherSubjectList);
+router.post('/updateclassteacher', passport.authenticate('jwt', {session:false}), ClassteacherController.updateClassTeacher);  // U
+
 
 router.post('/test', passport.authenticate('jwt', {session:false}), TestController.create);                  // C
 router.get('/test', passport.authenticate('jwt', {session:false}), TestController.getAll); 
