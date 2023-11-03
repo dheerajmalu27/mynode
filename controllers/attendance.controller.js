@@ -6,6 +6,7 @@ const { Teacher }       = require('../models');
 const db  = require('../models/index').db;
 const authService       = require('../services/auth.service');
 const { to, ReE, ReS }  = require('../services/util.service');
+const { Op } = require('sequelize'); // Add this line to import Op
 
 const create = async function(req, res){
     let err, attendanceObj;
@@ -207,23 +208,131 @@ const getAddattendanceStudentList = async function(req, res){
 module.exports.getAddattendanceStudentList = getAddattendanceStudentList;
 
 
-const getAddattendanceDateWiseReport = async function(req, res){
-    let startDate = req.query.startDate;
-    let endDate = req.query.endDate;
-    let classId = req.query.classId;
-    let divId = req.query.divId;
-    db.sequelize.query("SELECT GROUP_CONCAT(DISTINCT CONCAT('max(CASE WHEN ca.attendanceDate = ''',date_format(attendanceDate, '%Y-%m-%d'), ''' THEN coalesce(ca.attendanceResult, ''P'') END) AS `', date_format(attendanceDate, '%Y-%m-%d'), '`')) as dateColumn FROM attendance where attendanceDate>='"+startDate+"' and attendanceDate <= '"+endDate+"' and classId='"+classId+"' and divId='"+divId+"'", { type: db.sequelize.QueryTypes.SELECT }).then(function(checkRecord){
-     console.log(checkRecord[0]);
-    
-        if(checkRecord[0]!=''){
-            db.sequelize.query("SELECT ca.studentName,ca.rollNo,ca.classId,ca.divId,"+checkRecord[0].dateColumn+"  from (select att.attendanceDate,att.attendanceResult, sv.studentName, sv.rollNo, sv.classId, sv.className, sv.divId, sv.divName from attendance att cross join studentlistview sv) ca where ca.attendanceDate>='"+startDate+"' and ca.attendanceDate <= '"+endDate+"' and ca.classId="+classId+" AND ca.divId="+divId+" group by ca.studentname, ca.rollNo, ca.classId order by ca.rollNo",{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){              
-                res.json(response);
-               }).catch(function(err){
-                  res.json(err);
-           });
-        }       
-       }).catch(function(err){
-          res.json(err);
-    }); 
-}
-module.exports.getAddattendanceDateWiseReport = getAddattendanceDateWiseReport;
+// const { Op } = require('sequelize');
+// const db = require('./db'); // Assuming you have the database connection
+
+const getByRecordWithDateRange = async function (req, res) {
+    let classID = req.query.classId;
+    let divID = req.query.divId;
+    let startDate = req.query.startDate; // Start of the date range
+    let endDate = req.query.endDate;     // End of the date range
+
+    const query = `
+        SELECT
+            A.studentId,
+            A.attendanceDate,
+            A.attendanceResult,
+            ASt.rollNo AS 'rollNo',
+            CONCAT(ASt.firstName, ' ', ASt.lastName) AS 'fullName'
+        FROM
+            Attendance AS A
+        RIGHT OUTER JOIN Student AS ASt ON A.studentId = ASt.id AND
+            A.classId = :classID AND A.divId = :divID AND A.attendanceDate BETWEEN :startDate AND :endDate
+        ORDER BY ASt.rollNo, A.attendanceDate;
+    `;
+
+    db.sequelize
+        .query(query, {
+            replacements: {
+                classID,
+                divID,
+                startDate,
+                endDate,
+            },
+            type: db.sequelize.QueryTypes.SELECT,
+        })
+        .then((result) => {
+            // Filter out rows with null studentId
+            const filteredResult = result.filter((record) => record.studentId !== null);
+
+            const pivotData = {};
+
+            filteredResult.forEach((record) => {
+                const { studentId, attendanceDate, attendanceResult, fullName,rollNo } = record;
+
+                if (!pivotData[studentId]) {
+                    pivotData[studentId] = {
+                        rollNo,
+                        fullName
+                        
+                    };
+                }
+                if(attendanceResult){
+                    pivotData[studentId][attendanceDate]='P'; 
+                }else{
+                    pivotData[studentId][attendanceDate]='A'; 
+                }
+                // pivotData[studentId][attendanceDate] = attendanceResult ;
+            });
+
+            const pivotDataArray = Object.values(pivotData);
+
+            // Get all unique dates within the date range
+            const uniqueDates = [...new Set(filteredResult.map((record) => record.attendanceDate))];
+
+            // Add 'NA' for missing dates
+            pivotDataArray.forEach((studentData) => {
+                uniqueDates.forEach((date) => {
+                    if (!studentData[date]) {
+                        studentData[date] = 'NA';
+                    }
+                });
+            });
+
+   
+
+            ReS(res, { attendancestudentList: pivotDataArray });
+        })
+        .catch((error) => {
+            ReS(res, { attendancestudentList: error });
+        });
+};
+
+module.exports.getByRecordWithDateRange = getByRecordWithDateRange;
+
+
+// const getByRecordWithDateRange = async function (req, res) {
+//     let classID = req.query.classId;
+//     let divID = req.query.divId;
+//     let startDate = req.query.startDate; // Start of the date range
+//     let endDate = req.query.endDate;     // End of the date range
+
+//     Attendance.findAll({
+//         where: {
+//             classId: classID,
+//             divId: divID,
+//             attendanceDate: {
+//                 [Op.between]: [startDate, endDate],
+//             },
+//         }
+//     })
+//         .then((att) => {
+//             const pivotData = {};
+
+//             // Transform data
+//             att.forEach((record) => {
+//                 console.log(record);
+//                 const { studentId, attendanceDate, attendanceResult } = record;
+
+//                 if (!pivotData[studentId]) {
+//                     pivotData[studentId] = {};
+//                 }
+
+//                 pivotData[studentId][attendanceDate] = attendanceResult;
+//             });
+
+//             // Convert pivot data to an array of objects
+//             const pivotDataArray = Object.keys(pivotData).map((studentId) => ({
+//                 studentId,
+//                 ...pivotData[studentId],
+//             }));
+
+//             // Print the pivot data
+//             console.log(pivotDataArray);
+
+//             ReS(res, { attendancestudentList: pivotDataArray });
+//         })
+//         .catch((error) => ReS(res, { attendancestudentList: error }));
+// };
+
+// module.exports.getByRecordWithDateRange = getByRecordWithDateRange;

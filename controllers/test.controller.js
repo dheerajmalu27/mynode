@@ -88,10 +88,83 @@ const testClassDivisionReportList = async function(req, res){
     let testId = req.query.testId;
     let divId = req.query.divId;
     db.sequelize.query('SELECT * FROM school.testmarksview where testId='+testId+' and classId='+classId+' and divId='+divId+' order by rollNo, subName', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
-        testClassDivisionReportListData.reportlist=testdata;
+        testClassDivisionReportListData.reportlist=convertReportList(testdata);
         res.json(testClassDivisionReportListData);
        }).catch(function(err){
           res.json(err);
     });
 }
 module.exports.testClassDivisionReportList = testClassDivisionReportList;
+const convertReportList = (originalReportList) => {
+    const convertedReportList = [];
+    const studentMap = [];
+
+    // Iterate through the original report list
+    originalReportList.forEach((report) => {
+        const {
+            studentId,
+            teacherId,
+            testId,
+            classId,
+            divId,
+            testName,
+            className,
+            divName,
+            teacherName,
+            studentName,
+            rollNo,
+            subId,
+            subName,
+            getMarks,
+            totalMarks,
+        } = report;
+
+        // Check if the student exists in the map
+        if (!studentMap[studentId]) {
+            studentMap[studentId] = {
+                studentId,
+                teacherId,
+                testId,
+                classId,
+                divId,
+                testName,
+                className,
+                divName,
+                teacherName,
+                studentName,
+                rollNo,
+                subjectData: [],
+                sumGetMarks: 0,
+                sumTotalMarks: 0,
+                percentage: 0,
+            };
+            convertedReportList.push(studentMap[studentId]);
+        }
+
+        // Push the subject data for the student
+        studentMap[studentId].subjectData.push({
+            subId,
+            subName,
+            getMarks,
+            totalMarks,
+        });
+
+        // Calculate the sum of getMarks and totalMarks for the student
+        studentMap[studentId].sumGetMarks += parseInt(getMarks, 10);
+        studentMap[studentId].sumTotalMarks += parseInt(totalMarks, 10);
+
+        // Calculate the percentage
+        const percentage = (studentMap[studentId].sumGetMarks / studentMap[studentId].sumTotalMarks) * 100;
+        studentMap[studentId].percentage = percentage.toFixed(2);
+    });
+
+    // Sort the students based on their percentage in descending order
+    convertedReportList.sort((a, b) => b.percentage - a.percentage);
+
+    // Assign a rank to each student
+    convertedReportList.forEach((student, index) => {
+        student.rank = index + 1;
+    });
+
+    return convertedReportList;
+};

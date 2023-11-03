@@ -124,3 +124,12 @@ const getAll = async function(req, res){
     });
 }
 module.exports.getAll = getAll;
+const getAllList = async function (req, res) {
+    Teacher.findAll({
+        attributes: ['id', [db.sequelize.literal('CONCAT(firstName, " ", lastName)'), 'text']]
+    })
+    .then(att => ReS(res, { teacher: att }))
+    .catch(error => ReS(res, { teacher: error }));
+}
+module.exports.getAllList = getAllList;
+
