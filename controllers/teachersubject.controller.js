@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, teachersubjectObj, data
     teachersubjectObj = req.teachersubject;
     data = req.body;
-    console.log("data"+data);
+   
     teachersubjectObj.set(data);
  
     [err, teachersubjectObj] = await to(teachersubjectObj.save());
@@ -68,7 +68,7 @@ const teacherSubjectList = async function(req, res){
     let classId = req.query.classId;
     let testId = req.query.testId;
     let divId = req.query.divId;
-    db.sequelize.query('SELECT * FROM school.all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
+    db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
         teacherSubjectListData.subjectteacherlist=testdata;
         res.json(teacherSubjectListData);
        }).catch(function(err){

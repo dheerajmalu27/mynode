@@ -98,3 +98,35 @@ const getClassDetails = async function(req, res) {
 }
 
 module.exports.getClassDetails = getClassDetails;
+
+const getAllListOfSubjectByClassId = async function(req, res) {
+    try {
+        let classId = req.params.classId;
+        db.sequelize.query('SELECT s.id,s.subName as text FROM subject s JOIN class c ON FIND_IN_SET(s.id, c.subjectIds) > 0 OR FIND_IN_SET(s.id, c.optionalSubjectIds) > 0 WHERE c.id ='+classId, { type: db.sequelize.QueryTypes.SELECT }).then(function(subject){
+       
+            ReS(res, {subject:subject});
+           }).catch(function(err){
+            ReS(res, {subject:err})
+        });
+    } catch (error) {
+        return ReE(res, {subject: error});
+    }
+}
+module.exports.getAllListOfSubjectByClassId = getAllListOfSubjectByClassId;
+
+
+const getAllListOfDivisionByClassId = async function(req, res) {
+    try {
+        let classId = req.params.classId;
+        db.sequelize.query('SELECT d.id,d.divName as text FROM division d JOIN class c ON FIND_IN_SET(d.id, c.divIds) > 0 WHERE c.id ='+classId, { type: db.sequelize.QueryTypes.SELECT }).then(function(division){
+       
+            ReS(res, {division:division});
+           }).catch(function(err){
+            ReS(res, {division:err})
+        });
+    } catch (error) {
+        return ReE(res, {division: error});
+    }
+}
+module.exports.getAllListOfDivisionByClassId = getAllListOfDivisionByClassId;
+

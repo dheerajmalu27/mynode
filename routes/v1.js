@@ -6,6 +6,7 @@ const AttendanceController = require('../controllers/attendance.controller');
 const CityController = require('../controllers/city.controller');
 const ClassController = require('../controllers/class.controller');
 const DivisionController = require('../controllers/division.controller');
+const SchoolProfileController = require('../controllers/schoolprofile.controller');
 const FinalresultController = require('../controllers/finalresult.controller');
 const StateController = require('../controllers/state.controller');
 const StudentController = require('../controllers/student.controller');
@@ -16,6 +17,10 @@ const TeachersubjectController = require('../controllers/teachersubject.controll
 const TestController = require('../controllers/test.controller');
 const TestmarksController = require('../controllers/testmarks.controller');
 const HolidaysController = require('../controllers/holidays.controller');
+const HomeworkController = require('../controllers/homework.controller');
+const BooksController = require('../controllers/books.controller');
+const BorrowedbooksController = require('../controllers/borrowedbooks.controller');
+const LeavingcertificatesController = require('../controllers/leavingcertificate.controller');
 const TodoController = require('../controllers/todo.controller');
 const HomeController 	= require('../controllers/home.controller');
 const TimetableController 	= require('../controllers/timetable.controller');
@@ -24,7 +29,24 @@ const custom 	        = require('./../middleware/custom');
 const passport      	= require('passport');
 const path              = require('path');
 
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Specify the destination folder for uploaded files
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
 
+    // Use the timestamp and the original file extension to create the image name.
+    const extname = path.extname(file.originalname);
+    const imageName = `${timestamp}${extname}`;
+    // Specify how the uploaded file should be named
+    cb(null, imageName);
+  },
+});
+
+const upload = multer({ storage: storage });
 require('./../middleware/passport')(passport)
 /* GET home page. */
 console.log("test data");
@@ -110,6 +132,10 @@ router.put('/class/:classId', passport.authenticate('jwt', {session:false}), cus
 router.delete('/class/:classId', passport.authenticate('jwt', {session:false}), custom.class, ClassController.remove);  //
 router.get('/classdetails',passport.authenticate('jwt', {session:false}), ClassController.getClassDetails); 
 
+router.get('/classdivision/:classId',passport.authenticate('jwt', {session:false}), ClassController.getAllListOfDivisionByClassId); 
+router.get('/classsubject/:classId',passport.authenticate('jwt', {session:false}), ClassController.getAllListOfSubjectByClassId); 
+
+
 router.post('/division',passport.authenticate('jwt', {session:false}), DivisionController.create);                  // C
 router.get('/division',passport.authenticate('jwt', {session:false}), DivisionController.getAll);                  // R
 router.get('/divisionlist',passport.authenticate('jwt', {session:false}), DivisionController.getAllList);                  // R
@@ -126,6 +152,36 @@ router.put('/holidays/:Id', passport.authenticate('jwt', {session:false}), custo
 router.delete('/holidays/:Id', passport.authenticate('jwt', {session:false}), custom.holidays, HolidaysController.remove);  // D
 
 
+router.post('/homework',passport.authenticate('jwt', {session:false}), HomeworkController.create);                  // C
+router.get('/homework',passport.authenticate('jwt', {session:false}), HomeworkController.getAll);                  // R
+// router.get('/holidays',passport.authenticate('jwt', {session:false}), HomeworkController.getAllList);                  // R
+router.get('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.get);     // R
+router.put('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.update);  // U
+router.delete('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.remove);  // D
+
+router.post('/books',passport.authenticate('jwt', {session:false}), BooksController.create);                  // C
+router.get('/books',passport.authenticate('jwt', {session:false}), BooksController.getAll);                  // R
+router.get('/bookslist',passport.authenticate('jwt', {session:false}), BooksController.getAllList);                  // R
+router.get('/books/:bookId', passport.authenticate('jwt', {session:false}), custom.books, BooksController.get);     // R
+router.put('/books/:bookId', passport.authenticate('jwt', {session:false}), custom.books, BooksController.update);  // U
+router.delete('/books/:bookId', passport.authenticate('jwt', {session:false}), custom.books, BooksController.remove);  // D
+
+
+router.post('/borrowedbooks',passport.authenticate('jwt', {session:false}), BorrowedbooksController.create);                  // C
+router.get('/borrowedbooks',passport.authenticate('jwt', {session:false}), BorrowedbooksController.getAll);                  // R
+// router.get('/borrowedbooks',passport.authenticate('jwt', {session:false}), BorrowedbooksController.getAllList);                  // R
+router.get('/borrowedbooks/:borrowId', passport.authenticate('jwt', {session:false}), custom.borrowedbooks, BorrowedbooksController.get);     // R
+router.put('/borrowedbooks/:borrowId', passport.authenticate('jwt', {session:false}), custom.borrowedbooks, BorrowedbooksController.update);  // U
+router.delete('/borrowedbooks/:borrowId', passport.authenticate('jwt', {session:false}), custom.borrowedbooks, BorrowedbooksController.remove);  // D
+
+
+router.post('/leavingcertificates',passport.authenticate('jwt', {session:false}), LeavingcertificatesController.create);                  // C
+// router.get('/leavingcertificates',passport.authenticate('jwt', {session:false}), LeavingcertificatesController.getAll);                  // R
+router.get('/leavingcertificates',passport.authenticate('jwt', {session:false}), LeavingcertificatesController.getAllList);                  // R
+router.get('/leavingcertificates/:Id', passport.authenticate('jwt', {session:false}), custom.leavingcertificates, LeavingcertificatesController.get);     // R
+router.put('/leavingcertificates/:Id', passport.authenticate('jwt', {session:false}), custom.leavingcertificates, LeavingcertificatesController.update);  // U
+router.delete('/leavingcertificates/:Id', passport.authenticate('jwt', {session:false}), custom.leavingcertificates, LeavingcertificatesController.remove);  // D
+
 
 router.post('/finalresult',passport.authenticate('jwt', {session:false}), FinalresultController.create);                  // C
 router.get('/finalresult',passport.authenticate('jwt', {session:false}), FinalresultController.getAll);                  // R
@@ -141,13 +197,15 @@ router.put('/state/:stateId', passport.authenticate('jwt', {session:false}), cus
 router.delete('/state/:stateId', passport.authenticate('jwt', {session:false}), custom.state, StateController.remove);  // D
 
 
-router.post('/student', passport.authenticate('jwt', {session:false}), StudentController.create);                  // C
-router.get('/student', passport.authenticate('jwt', {session:false}), StudentController.getAll);                  // R
+router.post('/student', passport.authenticate('jwt', {session:false}),upload.single('image'), StudentController.create);                  // C
+router.get('/student', passport.authenticate('jwt', {session:false}), StudentController.getAll);         
+router.get('/activestudentlist', passport.authenticate('jwt', {session:false}), StudentController.getAllList);             // R
 router.get('/absentstudent', passport.authenticate('jwt', {session:false}), StudentController.getAllAbsentStudent);                  // R
 router.get('/todayabsentstudent', passport.authenticate('jwt', {session:false}), StudentController.getTodayAbsentStudent);                  // R
 router.get('/student/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.get);     // R
+router.get('/studentinfo/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.getStudentInfoAll);     // R
 router.get('/studentprofile/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.getprofile);     // R
-router.put('/student/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.update);  // U
+router.put('/student/:studentId', passport.authenticate('jwt', {session:false}),upload.single('image'),  custom.student, StudentController.update);  // U
 router.delete('/student/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.remove);  // D
 
 router.post('/subject', passport.authenticate('jwt', {session:false}), SubjectController.create);                  // C
@@ -158,12 +216,17 @@ router.get('/subject/:subjectId', passport.authenticate('jwt', {session:false}),
 router.put('/subject/:subjectId', passport.authenticate('jwt', {session:false}),  custom.subject, SubjectController.update);  // U
 router.delete('/subject/:subjectId', passport.authenticate('jwt', {session:false}),  custom.subject, SubjectController.remove);  // D
 
-router.post('/teacher', passport.authenticate('jwt', {session:false}), TeacherController.create);                  // C
+router.post('/teacher', passport.authenticate('jwt', {session:false}),upload.single('image'), TeacherController.create);                  // C
 router.get('/teacher', passport.authenticate('jwt', {session:false}), TeacherController.getAll);                  // R
 router.get('/teacherlist', passport.authenticate('jwt', {session:false}), TeacherController.getAllList);                  // R
 router.get('/teacher/:teacherId', passport.authenticate('jwt', {session:false}),  custom.teacher, TeacherController.get);     // R
 router.get('/teacherprofile/:teacherId', passport.authenticate('jwt', {session:false}),  custom.teacher, TeacherController.getprofile);     // R
-router.put('/teacher/:teacherId', passport.authenticate('jwt', {session:false}),  custom.teacher, TeacherController.update);  // U
+
+router.put('/teacher/:teacherId', passport.authenticate('jwt', {session:false}), upload.single('image'), custom.teacher, TeacherController.update);  // U
+// router.put('/teacher/:id', upload.single('image'), (req, res) => {
+//   console.log(req.body);
+//   console.log(req.file);
+// });
 router.delete('/teacher/:teacherId', passport.authenticate('jwt', {session:false}),  custom.teacher, TeacherController.remove);  // D
 
 router.post('/teachersubject', passport.authenticate('jwt', {session:false}), TeachersubjectController.create);                  // C
@@ -212,4 +275,10 @@ router.get('/gettimetablelist', passport.authenticate('jwt', {session:false}), T
 //********* API DOCUMENTATION **********
 // router.use('/docs/api.json',            express.static(path.join(__dirname, '/../public/v1/documentation/api.json')));
 // router.use('/docs',                     express.static(path.join(__dirname, '/../public/v1/documentation/dist')));
+
+router.post('/schoolprofile',passport.authenticate('jwt', {session:false}), SchoolProfileController.create);                  // C
+router.get('/schoolprofile',passport.authenticate('jwt', {session:false}), SchoolProfileController.getAll);                  // R
+router.get('/schoolprofilelist',passport.authenticate('jwt', {session:false}), SchoolProfileController.getAllList); 
+router.put('/schoolprofile/:schoolprofileId', passport.authenticate('jwt', {session:false}),custom.schoolprofile, SchoolProfileController.update);  // U
+
 module.exports = router;

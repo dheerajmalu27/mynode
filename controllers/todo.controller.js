@@ -36,7 +36,7 @@ const update = async function(req, res){
     todo = req.todo;
     console.log("todos"+todo);
     data = req.body;
-    console.log("data"+data);
+   
     todo.set(data);
  
     [err, todo] = await to(todo.save());

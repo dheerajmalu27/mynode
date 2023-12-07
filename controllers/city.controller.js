@@ -38,7 +38,7 @@ const update = async function(req, res){
     let err, cityObj, data
     cityObj = req.city;
     data = req.body;
-    console.log("data"+data);
+   
     cityObj.set(data);
  
     [err, cityObj] = await to(cityObj.save());

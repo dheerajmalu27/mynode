@@ -80,7 +80,7 @@ const getByRecord = async function(req, res){
         include: [{
         model: Student,
         as: 'AttendanceStudent',
-       attributes: ['rollNo','firstName','lastName'],
+       attributes: ['rollNo','firstName','lastName','profileImage'],
        required: false,
     },
     {

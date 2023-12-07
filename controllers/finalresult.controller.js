@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, finalresultObj, data
     finalresultObj = req.finalresult;
     data = req.body;
-    console.log("data"+data);
+   
     finalresultObj.set(data);
  
     [err, finalresultObj] = await to(finalresultObj.save());

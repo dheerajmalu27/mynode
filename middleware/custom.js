@@ -9,11 +9,16 @@ const Student 	    = require('./../models').Student;
 const Subject 	    = require('./../models').Subject;
 const Teacher	    = require('./../models').Teacher;
 const Holidays   = require('./../models').Holidays;
+const Homework   = require('./../models').Homework;
+const Books   = require('./../models').Books;
+const Borrowedbooks   = require('./../models').Borrowedbooks;
 const Classteacher 	    = require('./../models').Classteacher;
 const Teachersubject 	    = require('./../models').Teachersubject;
+const Schoolprofile 	    = require('./../models').Schoolprofile;
 const Test 	    = require('./../models').Test;
 const Testmarks 	    = require('./../models').Testmarks;
 const  Timetable        =  require('./../models').Timetable;
+const  Leavingcertificate= require('../models').Leavingcertificate;
 const { to, ReE, ReS } = require('../services/util.service');
 
 let todo = async function (req, res, next) {
@@ -102,6 +107,62 @@ let holidays = async function (req, res, next) {
 }
 module.exports.holidays = holidays;
 
+let homework = async function (req, res, next) {
+    let homeworkId, err, homeworkObj;
+    homeworkId = req.params.Id;
+
+    [err, homeworkObj] = await to(Homework.findOne({where:{id:homeworkId}}));
+    if(err) return ReE(res, "err finding homework");
+
+    if(!homeworkObj) return ReE(res, "homework not found with id: "+homeworkId);
+   
+    req.homework = homeworkObj;
+    next();
+}
+module.exports.homework = homework;
+
+let books = async function (req, res, next) {
+    let bookId, err, booksObj;
+    bookId = req.params.bookId;
+
+    [err, booksObj] = await to(Books.findOne({where:{bookId:bookId}}));
+    if(err) return ReE(res, "err finding books");
+
+    if(!booksObj) return ReE(res, "books not found with id: "+bookId);
+   
+    req.book = booksObj;
+    next();
+}
+module.exports.books = books;
+
+let borrowedbooks = async function (req, res, next) {
+    let borrowId, err, borrowedbooksObj;
+    borrowId = req.params.borrowId;
+
+    [err, borrowedbooksObj] = await to(Borrowedbooks.findOne({where:{borrowId:borrowId}}));
+    if(err) return ReE(res, "err finding borrowedbooks");
+
+    if(!borrowedbooksObj) return ReE(res, "borrowedbooks not found with id: "+borrowId);
+   
+    req.borrowedbook = borrowedbooksObj;
+    next();
+}
+module.exports.borrowedbooks = borrowedbooks;
+
+let leavingcertificates = async function (req, res, next) {
+    let leavingcertificateId, err, leavingcertificatesObj;
+    leavingcertificateId = req.params.Id;
+
+    [err, leavingcertificatesObj] = await to(Leavingcertificate.findOne({where:{id:leavingcertificateId}}));
+    if(err) return ReE(res, "err finding leavingcertificates");
+
+    if(!leavingcertificatesObj) return ReE(res, "leavingcertificates not found with id: "+leavingcertificateId);
+   
+    req.leavingcertificate = leavingcertificatesObj;
+    next();
+}
+module.exports.leavingcertificates = leavingcertificates;
+
 let finalresult = async function (req, res, next) {
     let finalresultId, err, finalresultObj;
     finalresultId = req.params.finalresultId;
@@ -159,9 +220,11 @@ let subject = async function (req, res, next) {
 module.exports.subject = subject;
 
 let teacher = async function (req, res, next) {
+   
     let teacherId, err, teacherObj;
     teacherId = req.params.teacherId;
-
+    // console.log(req.params);
+    console.log(req.body);
     [err, teacherObj] = await to(Teacher.findOne({where:{id:teacherId}}));
     if(err) return ReE(res, "err finding teacher");
 
@@ -200,6 +263,24 @@ let classteacher = async function (req, res, next) {
     next();
 }
 module.exports.classteacher = classteacher;
+
+
+let schoolprofile = async function (req, res, next) {
+   
+    let schoolprofileId, err, schoolprofileObj;
+    schoolprofileId = req.params.schoolprofileId;
+    // console.log(req.params);
+    console.log(req.body);
+    [err,schoolprofileObj] = await to(Schoolprofile.findOne({where:{id:schoolprofileId}}));
+    if(err) return ReE(res, "err finding school profile");
+
+    if(!schoolprofileObj) return ReE(res, "school profile not found with id: "+schoolprofileId);
+   
+    req.schoolprofile = schoolprofileObj;
+    next();
+}
+module.exports.schoolprofile = schoolprofile;
+
 
 let test = async function (req, res, next) {
     let testId, err, testObj;

@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, classteacherObj, data
     classteacherObj = req.classteacher;
     data = req.body;
-    console.log("data"+data);
+   
     classteacherObj.set(data);
  
     [err, classteacherObj] = await to(classteacherObj.save());
@@ -57,7 +57,7 @@ module.exports.remove = remove;
 const getAll = async function(req, res){
    
 
-     db.sequelize.query("SELECT * FROM school.all_classteacherlistview", { type: db.sequelize.QueryTypes.SELECT })
+     db.sequelize.query("SELECT * FROM all_classteacherlistview", { type: db.sequelize.QueryTypes.SELECT })
         .then(att =>ReS(res, {classteacher:att}))
         .catch(error => ReE(res, {classteacher:error}));
 }
@@ -69,7 +69,7 @@ const classTeacherList = async function(req, res){
     let classId = req.query.classId;
     let testId = req.query.testId;
     let divId = req.query.divId;
-    db.sequelize.query('SELECT * FROM school.all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
+    db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
         classTeacherListData.subjectteacherlist=testdata;
         res.json(classTeacherListData);
        }).catch(function(err){

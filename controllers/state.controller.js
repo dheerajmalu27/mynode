@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, stateObj, data
     stateObj = req.state;
     data = req.body;
-    console.log("data"+data);
+   
     stateObj.set(data);
  
     [err, stateObj] = await to(stateObj.save());

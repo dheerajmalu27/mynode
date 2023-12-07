@@ -10,6 +10,19 @@ const { to, ReE, ReS }  = require('../services/util.service');
 const create = async function(req, res){
     let err, studentObj;
     let studentInfo = req.body;
+    delete studentInfo.id;
+
+    console.log(req.file);
+    if (req.file) {
+        // If an image was successfully uploaded, save the image name to the 'profileImage' column
+        studentInfo.profileImage = req.file.filename;
+      }
+      delete studentInfo.image;
+      // Check if the 'profileImage' field is not present in the request or if it's empty
+    //   if (!req.body.profileImage) {
+    //     // Set 'profileImage' to the existing value to preserve it
+    //     studentInfo.profileImage = studentInfo.profileImage;
+    //   }
     console.log(studentInfo);
     [err, studentObj] = await to(Student.create(studentInfo));
     if(err) return ReE(res, err, 422);
@@ -113,7 +126,19 @@ const update = async function(req, res){
     let err, studentObj, data
     studentObj = req.student;
     data = req.body;
-    console.log("data"+data);
+    console.log(req.file);
+    if (req.file) {
+        // If an image was successfully uploaded, save the image name to the 'profileImage' column
+        data.profileImage = req.file.filename;
+      }
+
+      // Check if the 'profileImage' field is not present in the request or if it's empty
+      if (!req.body.profileImage) {
+        // Set 'profileImage' to the existing value to preserve it
+        data.profileImage = data.profileImage;
+      }
+      console.log("data");
+      console.log(data);
     studentObj.set(data);
  
     [err, studentObj] = await to(studentObj.save());
@@ -147,6 +172,27 @@ const getAll = async function(req, res){
     });
 }
 module.exports.getAll = getAll;
+const getAllList = async function(req, res){
+   
+    let studentData = new Object();
+    db.sequelize.query(
+      'SELECT st.id, CONCAT(st.firstName, " ", st.lastName, "-", cl.className, "-", d.divName) AS text ' +
+      'FROM student AS st ' +
+      'LEFT JOIN class AS cl ON cl.id=st.classId ' +
+      'LEFT JOIN division AS d ON d.id=st.divId ' +
+      'WHERE st.active = 1', // Add the condition here
+      { type: db.sequelize.QueryTypes.SELECT }
+    )
+      .then(function (students) {
+        studentData.student = students;
+        res.json(studentData);
+      })
+      .catch(function (err) {
+        res.json(err);
+      });
+    
+}
+module.exports.getAllList = getAllList;
 const getAllAbsentStudent = async function(req, res){
     db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM `absentstudentlistview`',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
               console.log(response); 
@@ -166,3 +212,16 @@ const getTodayAbsentStudent = async function(req, res){
            });
 }
 module.exports.getTodayAbsentStudent = getTodayAbsentStudent;
+const getStudentInfoAll = async function(req, res){
+    let studentId = req.params.studentId;
+    
+    let studentData=new Object();
+    db.sequelize.query('SELECT st.*,cl.className,d.divName FROM student AS st LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId where st.id='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
+        // studentData.studentinfo=student;
+        
+        res.json(student);
+       }).catch(function(err){
+          res.json(err);
+    });
+}
+module.exports.getStudentInfoAll = getStudentInfoAll;

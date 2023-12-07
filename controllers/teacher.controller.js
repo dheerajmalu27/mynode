@@ -89,7 +89,18 @@ const update = async function(req, res){
     let err, teacherObj, data
     teacherObj = req.teacher;
     data = req.body;
-    console.log("data"+data);
+    //
+    console.log(req.file);
+    if (req.file) {
+        // If an image was successfully uploaded, save the image name to the 'profileImage' column
+        data.profileImage = req.file.filename;
+      }
+
+      // Check if the 'profileImage' field is not present in the request or if it's empty
+      if (!req.body.profileImage) {
+        // Set 'profileImage' to the existing value to preserve it
+        data.profileImage = data.profileImage;
+      }
     teacherObj.set(data);
  
     [err, teacherObj] = await to(teacherObj.save());

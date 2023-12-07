@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, testObj, data
     testObj = req.test;
     data = req.body;
-    console.log("data"+data);
+   
     testObj.set(data);
  
     [err, testObj] = await to(testObj.save());
@@ -87,7 +87,7 @@ const testClassDivisionReportList = async function(req, res){
     let classId = req.query.classId;
     let testId = req.query.testId;
     let divId = req.query.divId;
-    db.sequelize.query('SELECT * FROM school.testmarksview where testId='+testId+' and classId='+classId+' and divId='+divId+' order by rollNo, subName', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
+    db.sequelize.query('SELECT * FROM testmarksview where testId='+testId+' and classId='+classId+' and divId='+divId+' order by rollNo, subName', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
         testClassDivisionReportListData.reportlist=convertReportList(testdata);
         res.json(testClassDivisionReportListData);
        }).catch(function(err){

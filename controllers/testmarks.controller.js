@@ -39,7 +39,7 @@ const update = async function(req, res){
     let err, testmarksObj, data
     testmarksObj = req.testmarks;
     data = req.body;
-    console.log("data"+data);
+   
     testmarksObj.set(data);
  
     [err, testmarksObj] = await to(testmarksObj.save());

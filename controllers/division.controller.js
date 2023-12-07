@@ -33,7 +33,7 @@ const update = async function(req, res){
     let err, divisionObj, data
     divisionObj = req.division;
     data = req.body;
-    console.log("data"+data);
+   
     divisionObj.set(data);
  
     [err, divisionObj] = await to(divisionObj.save());
