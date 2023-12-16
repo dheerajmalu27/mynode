@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     divIds: DataTypes.TEXT,
     subjectIds: DataTypes.TEXT,
     testIds: DataTypes.TEXT,
+    totalSeats: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   }, {
     freezeTableName: true,

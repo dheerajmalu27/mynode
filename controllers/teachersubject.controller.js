@@ -55,62 +55,63 @@ const remove = async function(req, res){
 module.exports.remove = remove;
 
 const getAll = async function(req, res){
-   
-    Teachersubject.findAll({})
-        .then(att =>ReS(res, {teachersubject:att}))
-        .catch(error => ReS(res, {teachersubject:error}));
-}
+    try {
+        const teachersubject = await Teachersubject.findAll({});
+        return ReS(res, { teachersubject });
+    } catch (error) {
+        return ReE(res, { teachersubject: error });
+    }
+};
 module.exports.getAll = getAll;
 
 const teacherSubjectList = async function(req, res){
-    let teacherSubjectListData=new Object();
-    console.log(req.query);
-    let classId = req.query.classId;
-    let testId = req.query.testId;
-    let divId = req.query.divId;
-    db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
-        teacherSubjectListData.subjectteacherlist=testdata;
-        res.json(teacherSubjectListData);
-       }).catch(function(err){
-          res.json(err);
-    });
-}
+    try {
+        const teacherSubjectListData = new Object();
+        console.log(req.query);
+        const classId = req.query.classId;
+        const testId = req.query.testId;
+        const divId = req.query.divId;
+        const testdata = await db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT });
+        teacherSubjectListData.subjectteacherlist = testdata;
+        return ReS(res, teacherSubjectListData);
+    } catch (error) {
+        return ReE(res, error);
+    }
+};
 module.exports.teacherSubjectList = teacherSubjectList;
+
 const updateTeacherSubject = async function (req, res) {
-    const data = req.body; // The data you want to update or insert
-    const classId = req.body.classId;
-    const divId = req.body.divId;
-    const subId = req.body.subId;
+    try {
+        const data = req.body; // The data you want to update or insert
+        const classId = req.body.classId;
+        const divId = req.body.divId;
+        const subId = req.body.subId;
 
-    // Define the WHERE conditions to find the record
-    const whereConditions = {
-        classId: classId,
-        divId: divId,
-        subId: subId,
-        // Add additional conditions as needed
-    };
+        // Define the WHERE conditions to find the record
+        const whereConditions = {
+            classId: classId,
+            divId: divId,
+            subId: subId,
+            // Add additional conditions as needed
+        };
 
-    // Find or create the record based on the conditions
-    const [err, result] = await to(
-        Teachersubject.findOrCreate({
+        // Find or create the record based on the conditions
+        const [result, created] = await Teachersubject.findOrCreate({
             where: whereConditions,
             defaults: data, // Data to insert if it doesn't exist
-        })
-    );
+        });
 
-    if (err) {
-        return ReE(res, err, 422);
-    }
-
-    if (result[1]) {
-        // Record was inserted
-        return ReS(res, { message: 'Inserted TeacherSubject: classId=' + classId + ', divId=' + divId + ', subId=' + subId });
-    } else {
-        // Record was found and updated
-        return ReS(res, { message: 'Updated TeacherSubject: classId=' + classId + ', divId=' + divId + ', subId=' + subId });
+        if (created) {
+            // Record was inserted
+            return ReS(res, { message: 'Inserted TeacherSubject: classId=' + classId + ', divId=' + divId + ', subId=' + subId });
+        } else {
+            // Record was found and updated
+            return ReS(res, { message: 'Updated TeacherSubject: classId=' + classId + ', divId=' + divId + ', subId=' + subId });
+        }
+    } catch (error) {
+        return ReE(res, error, 422);
     }
 };
 
 module.exports.updateTeacherSubject = updateTeacherSubject;
-
 

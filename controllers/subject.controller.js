@@ -53,38 +53,49 @@ const remove = async function(req, res){
     return ReS(res, {message:'Deleted Subject'}, 204);
 }
 module.exports.remove = remove;
-
-const getAll = async function(req, res){
-   
-    Subject.findAll({})
-        .then(att =>ReS(res, {subject:att}))
-        .catch(error => ReS(res, {subject:error}));
-}
+const getAll = async function (req, res) {
+    try {
+        const subject = await Subject.findAll({});
+        return ReS(res, { subject });
+    } catch (error) {
+        return ReE(res, { subject: error });
+    }
+};
 module.exports.getAll = getAll;
-const getAllList = async function(req, res){
-   
-    Subject.findAll({ attributes: ['id', ['subName', 'text']]})
-        .then(att =>ReS(res, {subject:att}))
-        .catch(error => ReS(res, {subject:error}));
-}
+
+const getAllList = async function (req, res) {
+    try {
+        const subject = await Subject.findAll({ attributes: ['id', ['subName', 'text']] });
+        return ReS(res, { subject });
+    } catch (error) {
+        return ReE(res, { subject: error });
+    }
+};
 module.exports.getAllList = getAllList;
 
-const getSubjectTestList = async function(req, res){
-    let testSubjectData=new Object();
-    console.log(req.query)
-;    let classId = req.query.classId;
-    db.sequelize.query('SELECT sb.id, sb.subName as text FROM subject sb WHERE sb.active=1 AND FIND_IN_SET(sb.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id='+classId+'))' , { type: db.sequelize.QueryTypes.SELECT }).then(function(subjectdata){
-        testSubjectData.subjectlist=subjectdata;
-        db.sequelize.query('SELECT ts.id, ts.testName as text FROM test ts WHERE ts.active=1 AND FIND_IN_SET(ts.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id='+classId+'))', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
-            testSubjectData.testlist=testdata;
-            res.json(testSubjectData);
-           }).catch(function(err){
-              res.json(err);
-        });
-       
-       }).catch(function(err){
-          res.json(err);
-    });
-  
-}
+const getSubjectTestList = async function (req, res) {
+    try {
+        const testSubjectData = new Object();
+        console.log(req.query);
+        const classId = req.query.classId;
+
+        const subjectdata = await db.sequelize.query(
+            'SELECT sb.id, sb.subName as text FROM subject sb WHERE sb.active=1 AND FIND_IN_SET(sb.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id=' + classId + '))',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+
+        testSubjectData.subjectlist = subjectdata;
+
+        const testdata = await db.sequelize.query(
+            'SELECT ts.id, ts.testName as text FROM test ts WHERE ts.active=1 AND FIND_IN_SET(ts.id,(SELECT cl.subjectIds FROM class cl WHERE cl.id=' + classId + '))',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+
+        testSubjectData.testlist = testdata;
+
+        return ReS(res, testSubjectData);
+    } catch (error) {
+        return ReE(res, error);
+    }
+};
 module.exports.getSubjectTestList = getSubjectTestList;

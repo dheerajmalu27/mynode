@@ -55,55 +55,62 @@ const remove = async function(req, res){
 module.exports.remove = remove;
 
 const getAll = async function(req, res){
-   
-    Timetable.findAll({})
-        .then(att =>ReS(res, {timetable:att}))
-        .catch(error => ReS(res, {timetable:error}));
-}
+    try {
+        const timetable = await Timetable.findAll({});
+        return ReS(res, { timetable });
+    } catch (error) {
+        return ReE(res, { timetable: error });
+    }
+};
 module.exports.getAll = getAll;
+
 const getAllList = async function(req, res){
-   
-    Timetable.findAll({ attributes: ['id', ['holidayDate', 'text']]})
-        .then(att =>ReS(res, {timetable:att}))
-        .catch(error => ReS(res, {timetable:error}));
-}
+    try {
+        const timetable = await Timetable.findAll({ attributes: ['id', ['holidayDate', 'text']] });
+        return ReS(res, { timetable });
+    } catch (error) {
+        return ReE(res, { timetable: error });
+    }
+};
 module.exports.getAllList = getAllList;
 
-
 const getTimeTableBatchList = async function(req, res){
-    let TimeTableData=new Object();   
-        db.sequelize.query('SELECT classId, divId, className, divName FROM timetabledetailview GROUP BY classId, divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(timetabledata){
-            TimeTableData.timetabledatalist=timetabledata;
-            res.json(TimeTableData);
-           }).catch(function(err){
-              res.json(err);
-        });
-}
+    try {
+        const TimeTableData = new Object();   
+        const timetabledata = await db.sequelize.query('SELECT classId, divId, className, divName FROM timetabledetailview GROUP BY classId, divId', { type: db.sequelize.QueryTypes.SELECT });
+        TimeTableData.timetabledatalist = timetabledata;
+        return ReS(res, TimeTableData);
+    } catch (error) {
+        return ReE(res, error);
+    }
+};
 module.exports.getTimeTableBatchList = getTimeTableBatchList;
 
 const getClassTimeTable = async function(req, res){
-    let TimeTableData=new Object(); 
-    let classId = req.query.classId;
-    let divId = req.query.divId;  
-        db.sequelize.query('SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`,SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`,SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE classId='+classId+' and divId='+divId, { type: db.sequelize.QueryTypes.SELECT }).then(function(timetabledata){
-            TimeTableData.classtimetabledata=timetabledata;
-            res.json(TimeTableData);
-           }).catch(function(err){
-              res.json(err);
-        });
-}
+    try {
+        const TimeTableData = new Object(); 
+        const classId = req.query.classId;
+        const divId = req.query.divId;  
+        const timetabledata = await db.sequelize.query('SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`,SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`,SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE classId='+classId+' and divId='+divId, { type: db.sequelize.QueryTypes.SELECT });
+        TimeTableData.classtimetabledata = timetabledata;
+        return ReS(res, TimeTableData);
+    } catch (error) {
+        return ReE(res, error);
+    }
+};
 module.exports.getClassTimeTable = getClassTimeTable;
 
 const bulkCreate = async function(req, res){
-    
-    let TimeTableData= req.body;
-    console.log(TimeTableData);
-    Timetable.bulkCreate(TimeTableData, {
-        updateOnDuplicate: [`id`,`teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`,`createdAt`,`updatedAt`]
-       
-    }).then(() => { // Notice: There are no arguments here, as of right now you'll have to...
-    
-      }).then(timetable =>{return ReS(res, {timetable:timetable})})
-   
-}
+    try {
+        const TimeTableData = req.body;
+        console.log(TimeTableData);
+        await Timetable.bulkCreate(TimeTableData, {
+            updateOnDuplicate: [`id`,`teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`,`createdAt`,`updatedAt`]
+        });
+        const timetable = await Timetable.findAll({});
+        return ReS(res, { timetable });
+    } catch (error) {
+        return ReE(res, { timetable: error });
+    }
+};
 module.exports.bulkCreate = bulkCreate;

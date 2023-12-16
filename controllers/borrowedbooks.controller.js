@@ -55,15 +55,14 @@ const remove = async function(req, res){
 module.exports.remove = remove;
 
 const getAll = async function(req, res){
-   
-    db.sequelize.query('SELECT * FROM borrowed_books_view',{ type: db.sequelize.QueryTypes.SELECT })
-    .then(result => {
-      res.json({borrowedbooks:result});
-    })
-    .catch(error => {
-      res.json(error);
-      // Handle any errors that occurred during the query
-    });
-}
+    try {
+        const result = await db.sequelize.query('SELECT * FROM borrowed_books_view', { type: db.sequelize.QueryTypes.SELECT });
+        return ReS(res, { borrowedbooks: result });
+    } catch (err) {
+        return ReE(res, err);
+        // Handle any errors that occurred during the query
+    }
+};
+
 module.exports.getAll = getAll;
 

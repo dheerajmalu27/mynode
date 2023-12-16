@@ -45,7 +45,7 @@ module.exports.update = update;
 
 const remove = async function(req, res){
     let homeworkObj, err;
-    homeworkObj = req.holiday;
+    homeworkObj = req.homework;
 
     [err, homeworkObj] = await to(homeworkObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete homework');

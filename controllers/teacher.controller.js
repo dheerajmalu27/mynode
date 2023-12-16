@@ -32,58 +32,33 @@ const get = async function(req, res){
 }
 module.exports.get = get;
 
-const getprofile = async function(req, res){
-    let teacherId = req.params.teacherId;
-    let teacherData=new Object();
-    Teacher.findAll({where:{id:teacherId},
-        include: [{
-        model: City,
-        as: 'TeacherCity', 
-       attributes: ['cityName'],
-    },{
-        model: State,
-        as: 'TeacherState', 
-       attributes: ['stateName'], 
-    }],}).then(function(data){
-        teacherData.info=data;
-       
-        db.sequelize.query('SELECT * FROM subjectteacherview WHERE teacherId='+teacherId, { type: db.sequelize.QueryTypes.SELECT }).then(function(subject){
-           console.log(subject);
-            teacherData.subjects=subject;
-            db.sequelize.query('SELECT CONCAT(tm.subName,"-",tm.className,"-",tm.divName) as classSubName,tm.testName,tm.avgRecord FROM teachersubjectrecordview as tm WHERE tm.teacherId='+teacherId , { type: db.sequelize.QueryTypes.SELECT }).then(function(testmarks){
-                teacherData.testmarks=testmarks;
-                db.sequelize.query('SELECT ct.attendanceMonth AS month,ct.monthAvg AS result FROM classmonthlyattendanceview as ct WHERE ct.teacherId='+teacherId, { type: db.sequelize.QueryTypes.SELECT }).then(function(monthlyattendance){
-                    teacherData.monthlyattendance=monthlyattendance;
-                    
-                    db.sequelize.query('SELECT ctv.testName,ctv.totalAvg AS result FROM classtestresultview as ctv WHERE ctv.teacherId='+teacherId, { type: db.sequelize.QueryTypes.SELECT }).then(function(classtestresult){
-                        teacherData.classtestresult=classtestresult;
-                        db.sequelize.query('SELECT CONCAT(tt.`subName`,"-", tt.`className`,"-", tt.`divName`) AS title, tt.`dayName` AS dow,SUBSTRING_INDEX(tt.`timeSlot`,"-",1) AS `start`,SUBSTRING_INDEX(tt.`timeSlot`,"-",-1) AS `end`  FROM `timetabledetailview` AS tt WHERE tt.teacherId='+teacherId, { type: db.sequelize.QueryTypes.SELECT }).then(function(timetable){
-                            teacherData.timetable=timetable;
-                            
-                            res.json(teacherData);
-                           }).catch(function(err){
-                              res.json(err);
-                        });
-                       
-                       }).catch(function(err){
-                          res.json(err);
-                    });
-                   }).catch(function(err){
-                      res.json(err);
-                });
-               }).catch(function(err){
-                  res.json(err);
-            });
+const getprofile = async function (req, res) {
+    try {
+        const teacherId = req.params.teacherId;
 
+        const teacherData = {
+            info: await Teacher.findAll({
+                where: { id: teacherId },
+                include: [
+                    { model: City, as: 'TeacherCity', attributes: ['cityName'] },
+                    { model: State, as: 'TeacherState', attributes: ['stateName'] },
+                ],
+            }),
+            subjects: await db.sequelize.query('SELECT * FROM subjectteacherview WHERE teacherId=' + teacherId, { type: db.sequelize.QueryTypes.SELECT }),
+            testmarks: await db.sequelize.query('SELECT CONCAT(tm.subName,"-",tm.className,"-",tm.divName) as classSubName,tm.testName,tm.avgRecord FROM teachersubjectrecordview as tm WHERE tm.teacherId=' + teacherId, { type: db.sequelize.QueryTypes.SELECT }),
+            monthlyattendance: await db.sequelize.query('SELECT ct.attendanceMonth AS month,ct.monthAvg AS result FROM classmonthlyattendanceview as ct WHERE ct.teacherId=' + teacherId, { type: db.sequelize.QueryTypes.SELECT }),
+            classtestresult: await db.sequelize.query('SELECT ctv.testName,ctv.totalAvg AS result FROM classtestresultview as ctv WHERE ctv.teacherId=' + teacherId, { type: db.sequelize.QueryTypes.SELECT }),
+            timetable: await db.sequelize.query('SELECT CONCAT(tt.`subName`,"-", tt.`className`,"-", tt.`divName`) AS title, tt.`dayName` AS dow,SUBSTRING_INDEX(tt.`timeSlot`,"-",1) AS `start`,SUBSTRING_INDEX(tt.`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` AS tt WHERE tt.teacherId=' + teacherId, { type: db.sequelize.QueryTypes.SELECT }),
+        };
 
-           }).catch(function(err){
-              res.json(err);
-        });
-       
-    })
-    .catch(error => ReS(res, {teacher:error}));
-}
+        return ReS(res, teacherData);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
+
 module.exports.getprofile = getprofile;
+
 
 const update = async function(req, res){
     let err, teacherObj, data
@@ -121,20 +96,23 @@ const remove = async function(req, res){
 }
 module.exports.remove = remove;
 
-const getAll = async function(req, res){
-    let teacherData=new Object();
-    // Teacher.findAll({})
-    //     .then(att =>ReS(res, {teacher:att}))
-    //     .catch(error => ReS(res, {teacher:error}));
-    db.sequelize.query('SELECT te.*,cl.className,d.divName FROM (SELECT t.`id`,t.`firstName`,t.`lastName`,t.`mobileNumber`,t.`joiningDate`,t.`active`,ct.divId,ct.classId FROM `teacher` AS t LEFT JOIN `classteacher` AS ct ON ct.`teacherId`=t.`id`) AS te LEFT JOIN class AS cl ON cl.id=te.classId LEFT JOIN division AS d ON d.id=te.divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(teacher){
-        teacherData.teacher=teacher;
-        
-        res.json(teacherData);
-       }).catch(function(err){
-          res.json(err);
-    });
-}
+const getAll = async function (req, res) {
+    try {
+        const teacherData = {
+            teacher: await db.sequelize.query(
+                'SELECT te.*, cl.className, d.divName FROM (SELECT t.`id`, t.`firstName`, t.`lastName`, t.`mobileNumber`, t.`joiningDate`, t.`active`, ct.divId, ct.classId FROM `teacher` AS t LEFT JOIN `classteacher` AS ct ON ct.`teacherId`=t.`id`) AS te LEFT JOIN class AS cl ON cl.id=te.classId LEFT JOIN division AS d ON d.id=te.divId',
+                { type: db.sequelize.QueryTypes.SELECT }
+            ),
+        };
+
+        return ReS(res, teacherData);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
+
 module.exports.getAll = getAll;
+
 const getAllList = async function (req, res) {
     Teacher.findAll({
         attributes: ['id', [db.sequelize.literal('CONCAT(firstName, " ", lastName)'), 'text']]

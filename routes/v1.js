@@ -2,6 +2,7 @@ const express 			= require('express');
 const router 			= express.Router();
 
 const UserController 	= require('../controllers/user.controller');
+const AdmissionController = require('../controllers/admission.controller');
 const AttendanceController = require('../controllers/attendance.controller');
 const CityController = require('../controllers/city.controller');
 const ClassController = require('../controllers/class.controller');
@@ -18,6 +19,7 @@ const TestController = require('../controllers/test.controller');
 const TestmarksController = require('../controllers/testmarks.controller');
 const HolidaysController = require('../controllers/holidays.controller');
 const HomeworkController = require('../controllers/homework.controller');
+const FeesController = require('../controllers/fees.controller');
 const BooksController = require('../controllers/books.controller');
 const BorrowedbooksController = require('../controllers/borrowedbooks.controller');
 const LeavingcertificatesController = require('../controllers/leavingcertificate.controller');
@@ -132,6 +134,8 @@ router.put('/class/:classId', passport.authenticate('jwt', {session:false}), cus
 router.delete('/class/:classId', passport.authenticate('jwt', {session:false}), custom.class, ClassController.remove);  //
 router.get('/classdetails',passport.authenticate('jwt', {session:false}), ClassController.getClassDetails); 
 
+router.get('/classlistforfees',passport.authenticate('jwt', {session:false}), ClassController.getClassListForFees); 
+
 router.get('/classdivision/:classId',passport.authenticate('jwt', {session:false}), ClassController.getAllListOfDivisionByClassId); 
 router.get('/classsubject/:classId',passport.authenticate('jwt', {session:false}), ClassController.getAllListOfSubjectByClassId); 
 
@@ -158,6 +162,14 @@ router.get('/homework',passport.authenticate('jwt', {session:false}), HomeworkCo
 router.get('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.get);     // R
 router.put('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.update);  // U
 router.delete('/homework/:Id', passport.authenticate('jwt', {session:false}), custom.homework, HomeworkController.remove);  // D
+
+router.post('/fees',passport.authenticate('jwt', {session:false}), FeesController.create);                  // C
+router.get('/fees',passport.authenticate('jwt', {session:false}), FeesController.getAll);                  // R
+// router.get('/holidays',passport.authenticate('jwt', {session:false}), HomeworkController.getAllList);                  // R
+router.get('/feesdatabyclass/:Id', passport.authenticate('jwt', {session:false}), FeesController.getFeesDataByClass);     // R
+router.get('/fees/:Id', passport.authenticate('jwt', {session:false}), custom.fees, FeesController.get);     // R
+router.put('/fees/:Id', passport.authenticate('jwt', {session:false}), custom.fees, FeesController.update);  // U
+router.delete('/fees/:Id', passport.authenticate('jwt', {session:false}), custom.fees, FeesController.remove);  // D
 
 router.post('/books',passport.authenticate('jwt', {session:false}), BooksController.create);                  // C
 router.get('/books',passport.authenticate('jwt', {session:false}), BooksController.getAll);                  // R
@@ -197,9 +209,21 @@ router.put('/state/:stateId', passport.authenticate('jwt', {session:false}), cus
 router.delete('/state/:stateId', passport.authenticate('jwt', {session:false}), custom.state, StateController.remove);  // D
 
 
+
+router.post('/admission', passport.authenticate('jwt', {session:false}),upload.single('image'), AdmissionController.create);                  // C
+router.get('/admission', passport.authenticate('jwt', {session:false}), AdmissionController.getAll);         
+
+router.get('/admission/:admissionId', passport.authenticate('jwt', {session:false}), AdmissionController.get);     // R
+router.put('/admission/:admissionId', passport.authenticate('jwt', {session:false}),upload.single('image'),custom.admission, AdmissionController.update);  // U
+router.delete('/admission/:admissionId', passport.authenticate('jwt', {session:false}),custom.admission,  AdmissionController.remove);  // D
+router.get('/allocateallstudents', AdmissionController.allocateAllStudents);  
+router.get('/allocatstudentsbyclass/:classId', AdmissionController.allocatStudentsByClass);  
+
 router.post('/student', passport.authenticate('jwt', {session:false}),upload.single('image'), StudentController.create);                  // C
 router.get('/student', passport.authenticate('jwt', {session:false}), StudentController.getAll);         
-router.get('/activestudentlist', passport.authenticate('jwt', {session:false}), StudentController.getAllList);             // R
+router.get('/activestudentlist', passport.authenticate('jwt', {session:false}), StudentController.getAllList);  
+router.get('/finalresultstudentlist', passport.authenticate('jwt', {session:false}), StudentController.getFinalResultStudentList);  
+           // R
 router.get('/absentstudent', passport.authenticate('jwt', {session:false}), StudentController.getAllAbsentStudent);                  // R
 router.get('/todayabsentstudent', passport.authenticate('jwt', {session:false}), StudentController.getTodayAbsentStudent);                  // R
 router.get('/student/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.get);     // R
@@ -207,6 +231,7 @@ router.get('/studentinfo/:studentId', passport.authenticate('jwt', {session:fals
 router.get('/studentprofile/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.getprofile);     // R
 router.put('/student/:studentId', passport.authenticate('jwt', {session:false}),upload.single('image'),  custom.student, StudentController.update);  // U
 router.delete('/student/:studentId', passport.authenticate('jwt', {session:false}),  custom.student, StudentController.remove);  // D
+router.get('/getallclassdivisionstudentlist', passport.authenticate('jwt', {session:false}), StudentController.getAllClassDivisionStudentList);     // R
 
 router.post('/subject', passport.authenticate('jwt', {session:false}), SubjectController.create);                  // C
 router.get('/subject', passport.authenticate('jwt', {session:false}), SubjectController.getAll);
@@ -254,6 +279,9 @@ router.get('/test/:testId', passport.authenticate('jwt', {session:false}),  cust
 router.put('/test/:testId', passport.authenticate('jwt', {session:false}),  custom.test, TestController.update);  // U
 router.delete('/test/:testId', passport.authenticate('jwt', {session:false}),  custom.test, TestController.remove);  // D
 router.get('/testclassreportlist', passport.authenticate('jwt', {session:false}), TestController.testClassReportList); 
+router.get('/finalresultclassreportlist', passport.authenticate('jwt', {session:false}), TestController.finalResultClassReportList); 
+router.get('/finalresultbyclass', passport.authenticate('jwt', {session:false}), TestController.insertFinalResultRecords); 
+
 router.get('/gettestclassdivisionreportlist', passport.authenticate('jwt', {session:false}), TestController.testClassDivisionReportList); 
 router.get('/getbyrecordtestmarks', passport.authenticate('jwt', {session:false}), TestmarksController.getByRecord);                  // R
 router.post('/bulktestmarks', passport.authenticate('jwt', {session:false}), TestmarksController.bulkCreate);                  // C

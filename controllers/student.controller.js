@@ -47,80 +47,37 @@ const get = async function(req, res){
 }
 module.exports.get = get;
 
-const getprofile = async function(req, res){
-    let studentId = req.params.studentId;
-    let studentData=new Object();
-//     db.sequelize.query('CALL test_proc();').then(function(response){
-//         console.log(response);
-//         res.json(response);
-//        }).catch(function(err){
-//           res.json(err);
-//    });
+const getprofile = async function (req, res) {
+    try {
+        const studentId = req.params.studentId;
 
+        const studentData = {
+            info: await Student.findOne({
+                where: { id: studentId },
+                include: [
+                    { model: Class, as: 'StudentClass', attributes: ['className'] },
+                    { model: Division, as: 'StudentDivision', attributes: ['divName'] },
+                    { model: City, as: 'StudentCity', attributes: ['cityName'] },
+                    { model: State, as: 'StudentState', attributes: ['stateName'] },
+                ],
+            }),
+            homework: await db.sequelize.query('SELECT h.id, h.classId, h.divId, h.subId, h.title, h.description, h.deadline, h.isCompleted, h.createdAt, h.createdBy, h.updatedAt, h.updatedBy, h.active, c.className, d.divName, s.subName FROM homework h JOIN class c ON h.classId = c.id JOIN division d ON h.divId = d.id JOIN subject s ON h.subId = s.id WHERE h.classId=(SELECT st.classId FROM student as st WHERE st.id=? ) AND h.divId=(SELECT st1.divId FROM student as st1 WHERE st1.id=?)', { replacements: [studentId, studentId], type: db.sequelize.QueryTypes.SELECT }),
+            subject: await db.sequelize.query('SELECT * FROM subjectteacherview WHERE classId=(SELECT st.classId FROM student as st WHERE st.id=? ) AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id=?)', { replacements: [studentId, studentId], type: db.sequelize.QueryTypes.SELECT }),
+            testmarks: await db.sequelize.query('SELECT tm.testId,tm.subId,tm.subName,tm.testName,ROUND((tm.getMarks/tm.totalMarks)*100) AS totalAvg FROM testmarksview as tm WHERE tm.studentId=? AND tm.classId=(SELECT st.classId FROM student as st WHERE st.id=?) AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id=?) ORDER BY subId,testId', { replacements: [studentId, studentId, studentId], type: db.sequelize.QueryTypes.SELECT }),
+            finalresult: await db.sequelize.query('SELECT fr.className,fr.divName,fr.resultData,SUBSTRING_INDEX(fr.resultDate, "-", -1) AS resultYear,fr.getMarks,fr.totalMarks,ROUND((fr.getMarks / fr.totalMarks) * 100) AS totalAvg FROM finalresult as fr WHERE fr.studentId=? ', { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }),
+            // attendance: await db.sequelize.query('SELECT at.* FROM attendance as at WHERE at.studentId=?', { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }),
+            monthlyattendance: await db.sequelize.query('SELECT mp.attendanceMonth AS month,mp.monthAvg AS result FROM studentmonthlyattendanceview as mp WHERE mp.studentId=?', { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }),
+            testresult: await db.sequelize.query('SELECT stv.testName,stv.totalAvg AS result FROM  studenttestresultview as stv WHERE stv.studentId=?', { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }),
+            messageportal: await db.sequelize.query('SELECT mp.* FROM messageportal as mp WHERE mp.studentId=?', { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }),
+        };
+        return ReS(res,studentData);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 
-    Student.findAll({where:{id:studentId},
-        include: [{
-        model: Class,
-        as: 'StudentClass', 
-       attributes: ['className'],
-     },{
-        model: Division,
-        as: 'StudentDivision', 
-       attributes: ['divName'], 
-    },{
-        model: City,
-        as: 'StudentCity', 
-       attributes: ['cityName'],
-    },{
-        model: State,
-        as: 'StudentState', 
-       attributes: ['stateName'], 
-    }],}).then(function(data){
-        studentData.info=data;
-        db.sequelize.query('SELECT * FROM subjectteacherview WHERE classId=(SELECT st.classId FROM student as st WHERE st.id='+studentId+') AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id='+studentId+')', { type: db.sequelize.QueryTypes.SELECT }).then(function(subject){
-            studentData.subject=subject;
-            db.sequelize.query('SELECT tm.testId,tm.subId,tm.subName,tm.testName,ROUND((tm.getMarks/tm.totalMarks)*100) AS totalAvg FROM testmarksview as tm WHERE tm.studentId='+studentId+' AND tm.classId=(SELECT st.classId FROM student as st WHERE st.id='+studentId+') AND divId=(SELECT st1.divId FROM student as st1 WHERE st1.id='+studentId+') ORDER BY subId,testId', { type: db.sequelize.QueryTypes.SELECT }).then(function(testmarks){
-                studentData.testmarks=testmarks;
-                db.sequelize.query('SELECT at.* FROM attendance as at WHERE at.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(attendance){
-                    studentData.attendance=attendance;
-                    db.sequelize.query('SELECT mp.attendanceMonth AS month,mp.monthAvg AS result FROM studentmonthlyattendanceview as mp WHERE mp.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(monthlyattendance){
-                        studentData.monthlyattendance=monthlyattendance;
-                        db.sequelize.query('SELECT stv.testName,stv.totalAvg AS result FROM  studenttestresultview as stv WHERE stv.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(testresult){
-                            studentData.testresult=testresult;
-                            db.sequelize.query('SELECT mp.* FROM messageportal as mp WHERE mp.studentId='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(messageportal){
-                                studentData.messageportal=messageportal;
-                                res.json(studentData);
-                               }).catch(function(err){
-                                  res.json(err);
-                            });
-                           
-                           }).catch(function(err){
-                              res.json(err);
-                        });
-                       
-                       }).catch(function(err){
-                          res.json(err);
-                    });
-                   }).catch(function(err){
-                      res.json(err);
-                });
-               }).catch(function(err){
-                  res.json(err);
-            });
-
-
-           }).catch(function(err){
-              res.json(err);
-        });
-       
-    })
-    .catch(error => ReS(res, {student:error}));
-
-    
-    
-    
-}
 module.exports.getprofile = getprofile;
+
 
 const update = async function(req, res){
     let err, studentObj, data
@@ -158,70 +115,121 @@ const remove = async function(req, res){
     return ReS(res, {message:'Deleted Student'}, 204);
 }
 module.exports.remove = remove;
-
-const getAll = async function(req, res){
-   
-    
-    let studentData=new Object();
-    db.sequelize.query('SELECT st.*,cl.className,d.divName FROM student AS st LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId', { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
-        studentData.student=student;
-        
-        res.json(studentData);
-       }).catch(function(err){
-          res.json(err);
-    });
-}
+const getAll = async function(req, res) {
+    try {
+        const studentData = await db.sequelize.query(
+            'SELECT st.*, cl.className, d.divName FROM student AS st ' +
+            'LEFT JOIN class AS cl ON cl.id=st.classId ' +
+            'LEFT JOIN division AS d ON d.id=st.divId',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, { student: studentData });
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 module.exports.getAll = getAll;
-const getAllList = async function(req, res){
-   
-    let studentData = new Object();
-    db.sequelize.query(
-      'SELECT st.id, CONCAT(st.firstName, " ", st.lastName, "-", cl.className, "-", d.divName) AS text ' +
-      'FROM student AS st ' +
-      'LEFT JOIN class AS cl ON cl.id=st.classId ' +
-      'LEFT JOIN division AS d ON d.id=st.divId ' +
-      'WHERE st.active = 1', // Add the condition here
-      { type: db.sequelize.QueryTypes.SELECT }
-    )
-      .then(function (students) {
-        studentData.student = students;
-        res.json(studentData);
-      })
-      .catch(function (err) {
-        res.json(err);
-      });
-    
-}
+
+const getAllList = async function(req, res) {
+    try {
+        const students = await db.sequelize.query(
+            'SELECT st.id, CONCAT(st.firstName, " ", st.lastName, "-", cl.className, "-", d.divName) AS text ' +
+            'FROM student AS st ' +
+            'LEFT JOIN class AS cl ON cl.id=st.classId ' +
+            'LEFT JOIN division AS d ON d.id=st.divId ' +
+            'WHERE st.active = 1',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, { student: students });
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 module.exports.getAllList = getAllList;
-const getAllAbsentStudent = async function(req, res){
-    db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM `absentstudentlistview`',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
-              console.log(response); 
-                res.json(response);
-               }).catch(function(err){
-                  res.json(err);
-           });
-}
+
+const getFinalResultStudentList = async function(req, res) {
+    try {
+        const students = await db.sequelize.query(
+            'SELECT st.id, CONCAT(st.firstName, " ", st.lastName, "-", cl.className, "-", d.divName) AS text ' +
+            'FROM student AS st ' +
+            'JOIN finalresult AS fr ON fr.studentId=st.id ' +
+            'LEFT JOIN class AS cl ON cl.id=st.classId ' +
+            'LEFT JOIN division AS d ON d.id=st.divId ' +
+            'WHERE st.active = 1',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, { student: students });
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
+module.exports.getFinalResultStudentList = getFinalResultStudentList;
+const getAllAbsentStudent = async function(req, res) {
+    try {
+        const response = await db.sequelize.query(
+            'SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` ' +
+            'FROM `absentstudentlistview`',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, response);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 module.exports.getAllAbsentStudent = getAllAbsentStudent;
-const getTodayAbsentStudent = async function(req, res){
-    
-    db.sequelize.query('SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM absentstudentlistview where attendanceDate=CURDATE()',{ type: db.sequelize.QueryTypes.SELECT }).then(function(response){
-               
-                res.json(response);
-               }).catch(function(err){
-                  res.json(err);
-           });
-}
+
+const getTodayAbsentStudent = async function(req, res) {
+    try {
+        const response = await db.sequelize.query(
+            'SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` ' +
+            'FROM absentstudentlistview WHERE attendanceDate = CURDATE()',
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, response);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 module.exports.getTodayAbsentStudent = getTodayAbsentStudent;
-const getStudentInfoAll = async function(req, res){
-    let studentId = req.params.studentId;
-    
-    let studentData=new Object();
-    db.sequelize.query('SELECT st.*,cl.className,d.divName FROM student AS st LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId where st.id='+studentId, { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
-        // studentData.studentinfo=student;
-        
-        res.json(student);
-       }).catch(function(err){
-          res.json(err);
-    });
-}
+
+const getStudentInfoAll = async function(req, res) {
+    try {
+        const studentId = req.params.studentId;
+        const studentData = await db.sequelize.query(
+            'SELECT st.*, cl.className, d.divName FROM student AS st ' +
+            'LEFT JOIN class AS cl ON cl.id=st.classId ' +
+            'LEFT JOIN division AS d ON d.id=st.divId ' +
+            'WHERE st.id=' + studentId,
+            { type: db.sequelize.QueryTypes.SELECT }
+        );
+        return ReS(res, studentData);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
 module.exports.getStudentInfoAll = getStudentInfoAll;
+const getAllClassDivisionStudentList = async function(req, res) {
+    try {
+        
+        const { classId, divId } = req.query; // Assuming classId and divId are parameters in the request
+
+        const studentData = await db.sequelize.query(
+            'SELECT st.rollNo, CONCAT(st.firstName, " ", st.lastName) AS fullName, cl.className, d.divName ' +
+            'FROM student AS st ' +
+            'LEFT JOIN class AS cl ON cl.id = st.classId ' +
+            'LEFT JOIN division AS d ON d.id = st.divId ' +
+            'WHERE st.classId = :classId AND st.divId = :divId ' +
+            'ORDER BY st.rollNo', // Added ORDER BY clause
+            { 
+                replacements: { classId, divId },
+                type: db.sequelize.QueryTypes.SELECT 
+            }
+        );
+
+        return ReS(res, { students: studentData }); // Returning an array of students
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
+
+module.exports.getAllClassDivisionStudentList = getAllClassDivisionStudentList;

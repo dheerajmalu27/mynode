@@ -19,6 +19,8 @@ const Test 	    = require('./../models').Test;
 const Testmarks 	    = require('./../models').Testmarks;
 const  Timetable        =  require('./../models').Timetable;
 const  Leavingcertificate= require('../models').Leavingcertificate;
+const  Fees= require('../models').Fees;
+const  Admission= require('../models').Admission;
 const { to, ReE, ReS } = require('../services/util.service');
 
 let todo = async function (req, res, next) {
@@ -120,7 +122,19 @@ let homework = async function (req, res, next) {
     next();
 }
 module.exports.homework = homework;
+let fees = async function (req, res, next) {
+    let feeId, err, feesObj;
+    feeId = req.params.Id;
 
+    [err, feesObj] = await to(Fees.findOne({where:{feeId:feeId}}));
+    if(err) return ReE(res, "err finding fee");
+
+    if(!feesObj) return ReE(res, "fee not found with id: "+feeId);
+   
+    req.fees = feesObj;
+    next();
+}
+module.exports.fees = fees;
 let books = async function (req, res, next) {
     let bookId, err, booksObj;
     bookId = req.params.bookId;
@@ -148,6 +162,20 @@ let borrowedbooks = async function (req, res, next) {
     next();
 }
 module.exports.borrowedbooks = borrowedbooks;
+
+let admission = async function (req, res, next) {
+    let borrowId, err, admissionObj;
+    id = req.params.admissionId;
+
+    [err, admissionObj] = await to(Admission.findOne({where:{id:id}}));
+    if(err) return ReE(res, "err finding Admission");
+
+    if(!admissionObj) return ReE(res, "Admission not found with id: "+id);
+   
+    req.admission = admissionObj;
+    next();
+}
+module.exports.admission = admission;
 
 let leavingcertificates = async function (req, res, next) {
     let leavingcertificateId, err, leavingcertificatesObj;

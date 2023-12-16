@@ -76,57 +76,64 @@ const getAllList = async function(req, res) {
 }
 module.exports.getAllList = getAllList;
 
+const getClassDetails = async function (req, res) {
+    try {
+      const student = await db.sequelize.query('SELECT * FROM classdetailsview', {
+        type: db.sequelize.QueryTypes.SELECT
+      });
+      return ReS(res, { class: student });
+    } catch (error) {
+      return ReE(res, { class: error });
+    }
+  };
+  
+  module.exports.getClassDetails = getClassDetails;
+  
 
-const getClassDetails = async function(req, res) {
-
-      
-    let classData=new Object();
-    db.sequelize.query('SELECT * FROM classdetailsview', { type: db.sequelize.QueryTypes.SELECT }).then(function(student){
-        classData.class=student;
-        
-        res.json(classData);
-       }).catch(function(err){
-          res.json(err);
-    });
-    // try {
-    //     const data = await db.sequelize.query('SELECT * FROM classdetailsview', { type: db.sequelize.QueryTypes.SELECT });
-    //     console.log(data);
-    //     return ReS(res, { class: data });
-    // } catch (err) {
-    //     return ReE(res, { class: err });
-    // }
-}
-
-module.exports.getClassDetails = getClassDetails;
-
-const getAllListOfSubjectByClassId = async function(req, res) {
+  const getAllListOfSubjectByClassId = async function (req, res) {
     try {
         let classId = req.params.classId;
-        db.sequelize.query('SELECT s.id,s.subName as text FROM subject s JOIN class c ON FIND_IN_SET(s.id, c.subjectIds) > 0 OR FIND_IN_SET(s.id, c.optionalSubjectIds) > 0 WHERE c.id ='+classId, { type: db.sequelize.QueryTypes.SELECT }).then(function(subject){
-       
-            ReS(res, {subject:subject});
-           }).catch(function(err){
-            ReS(res, {subject:err})
-        });
+        const subjects = await db.sequelize.query('SELECT s.id, s.subName as text FROM subject s JOIN class c ON FIND_IN_SET(s.id, c.subjectIds) > 0 OR FIND_IN_SET(s.id, c.optionalSubjectIds) > 0 WHERE c.id =' + classId, { type: db.sequelize.QueryTypes.SELECT });
+
+        return ReS(res, { subject: subjects });
     } catch (error) {
-        return ReE(res, {subject: error});
+        return ReE(res, { subject: error });
     }
-}
+};
+
 module.exports.getAllListOfSubjectByClassId = getAllListOfSubjectByClassId;
 
 
 const getAllListOfDivisionByClassId = async function(req, res) {
     try {
-        let classId = req.params.classId;
-        db.sequelize.query('SELECT d.id,d.divName as text FROM division d JOIN class c ON FIND_IN_SET(d.id, c.divIds) > 0 WHERE c.id ='+classId, { type: db.sequelize.QueryTypes.SELECT }).then(function(division){
-       
-            ReS(res, {division:division});
-           }).catch(function(err){
-            ReS(res, {division:err})
-        });
+      let classId = req.params.classId;
+      const divisionData = await db.sequelize.query(
+        'SELECT d.id, d.divName as text FROM division d JOIN class c ON FIND_IN_SET(d.id, c.divIds) > 0 WHERE c.id =' + classId,
+        { type: db.sequelize.QueryTypes.SELECT }
+      );
+  
+      console.log(divisionData);
+  
+      return ReS(res, { division: divisionData });
     } catch (error) {
-        return ReE(res, {division: error});
+        console.log(error);
+      return ReE(res, { division: error });
     }
-}
-module.exports.getAllListOfDivisionByClassId = getAllListOfDivisionByClassId;
+  };
+  
+  module.exports.getAllListOfDivisionByClassId = getAllListOfDivisionByClassId;
+  
+
+  const getClassListForFees = async function (req, res) {
+    try {
+        const classlist = await db.sequelize.query('SELECT `class`.`id` AS `id`,`class`.`className` AS `text` FROM `school`.`class` WHERE `class`.`id` NOT IN (SELECT DISTINCT `fees`.`classId` FROM `school`.`fees`);', { type: db.sequelize.QueryTypes.SELECT });
+
+        return ReS(res, { class: classlist });
+    } catch (error) {
+        return ReE(res, { class: error });
+    }
+};
+
+module.exports.getClassListForFees = getClassListForFees;
+
 

@@ -54,29 +54,37 @@ const remove = async function(req, res){
 }
 module.exports.remove = remove;
 
-const getAll = async function(req, res){
-   
+const getAll = async function (req, res) {
+    try {
+        const att = await db.sequelize.query("SELECT * FROM all_classteacherlistview", { type: db.sequelize.QueryTypes.SELECT });
+        return ReS(res, { classteacher: att });
+    } catch (error) {
+        return ReE(res, { classteacher: error });
+    }
+};
 
-     db.sequelize.query("SELECT * FROM all_classteacherlistview", { type: db.sequelize.QueryTypes.SELECT })
-        .then(att =>ReS(res, {classteacher:att}))
-        .catch(error => ReE(res, {classteacher:error}));
-}
 module.exports.getAll = getAll;
 
-const classTeacherList = async function(req, res){
-    let classTeacherListData=new Object();
-    console.log(req.query);
-    let classId = req.query.classId;
-    let testId = req.query.testId;
-    let divId = req.query.divId;
-    db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT }).then(function(testdata){
-        classTeacherListData.subjectteacherlist=testdata;
-        res.json(classTeacherListData);
-       }).catch(function(err){
-          res.json(err);
-    });
-}
+
+const classTeacherList = async function (req, res) {
+    try {
+        let classTeacherListData = new Object();
+        console.log(req.query);
+        let classId = req.query.classId;
+        let testId = req.query.testId;
+        let divId = req.query.divId;
+
+        const testdata = await db.sequelize.query('SELECT * FROM all_teacherclassdivisionsubject', { type: db.sequelize.QueryTypes.SELECT });
+
+        classTeacherListData.subjectteacherlist = testdata;
+        return ReS(res, classTeacherListData);
+    } catch (err) {
+        return ReE(res, err);
+    }
+};
+
 module.exports.classTeacherList = classTeacherList;
+
 const updateClassTeacher = async function (req, res) {
     const data = req.body; // The data you want to update or insert
     const classId = req.body.classId;
