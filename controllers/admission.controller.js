@@ -1,10 +1,12 @@
-const { Admission } = require('../models');
-const { FeesPaidByStudent } = require('../models');
-const db = require('../models/index').db;
-const { to, ReE, ReS } = require('../services/util.service');
-const { getAllListOfDivisionByClassId } = require('../controllers/class.controller');
-const _ = require('lodash');
-const { where } = require('sequelize');
+const { Admission } = require("../models");
+const { FeesPaidByStudent } = require("../models");
+const db = require("../models/index").db;
+const { to, ReE, ReS } = require("../services/util.service");
+const {
+  getAllListOfDivisionByClassId,
+} = require("../controllers/class.controller");
+const _ = require("lodash");
+const { where } = require("sequelize");
 const create = async function (req, res) {
   let err, admissionObj, feesPaidObj;
 
@@ -54,7 +56,6 @@ const create = async function (req, res) {
     dueDate: admissionfeesPaidInfo.totalFee,
     lateFee: admissionfeesPaidInfo.lateFee,
     discount: admissionfeesPaidInfo.discount,
-
   };
 
   let feesPaidInfo = {
@@ -65,7 +66,7 @@ const create = async function (req, res) {
     remainingAmount: admissionfeesPaidInfo.remainingAmount,
     paymentMethod: admissionfeesPaidInfo.paymentMethod,
     paymentDetail: admissionfeesPaidInfo.paymentDetail,
-    feesPaymentDetails: JSON.stringify(feesPaymentDetailsObj)
+    feesPaymentDetails: JSON.stringify(feesPaymentDetailsObj),
   };
 
   delete admissionInfo.id;
@@ -81,10 +82,10 @@ const create = async function (req, res) {
   // Create Admission record
   [err, admissionObj] = await to(Admission.create(admissionInfo));
   if (err) {
-    console.log(err)
+    console.log(err);
     return ReE(res, err, 422);
   }
-  console.log(admissionObj)
+  console.log(admissionObj);
   // Create feespaidbystudent record
   feesPaidInfo.admissionId = admissionObj.id;
   [err, feesPaidObj] = await to(FeesPaidByStudent.create(feesPaidInfo));
@@ -108,20 +109,23 @@ const create = async function (req, res) {
   let admissionJson = admissionObj; // Use toJSON to convert Sequelize instance to plain JSON
 
   return ReS(res, { admission: admissionJson, feesPaid: feesPaidObj }, 201);
-}
+};
 
 module.exports.create = create;
 
-
 const get = async function (req, res) {
-  db.sequelize.query('SELECT ad.*,cl.className,d.divName,f.paymentAmount,f.remainingAmount,f.paymentDate,f.paymentDetail,f.paymentMethod,f.feesPaymentDetails,f.paymentId AS paymentreciptid FROM admission AS ad LEFT JOIN class AS cl ON cl.id=ad.classId LEFT JOIN division AS d ON d.id=ad.divId  LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId where ad.id=' + req.params.admissionId, { type: db.sequelize.QueryTypes.SELECT }).then(function (admission) {
-
-    return ReS(res, { admission: admission });
-
-  }).catch(function (err) {
-    return ReE(res, err, 422);
-  });
-
+  db.sequelize
+    .query(
+      "SELECT ad.*,cl.className,d.divName,f.paymentAmount,f.remainingAmount,f.paymentDate,f.paymentDetail,f.paymentMethod,f.feesPaymentDetails,f.paymentId AS paymentreciptid FROM admission AS ad LEFT JOIN class AS cl ON cl.id=ad.classId LEFT JOIN division AS d ON d.id=ad.divId  LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId where ad.id=" +
+        req.params.admissionId,
+      { type: db.sequelize.QueryTypes.SELECT }
+    )
+    .then(function (admission) {
+      return ReS(res, { admission: admission });
+    })
+    .catch(function (err) {
+      return ReE(res, err, 422);
+    });
 
   // [err, admissionObj] = await to(Admission.findByPk(admissionId));
   // if(err) return ReE(res, err, 422);
@@ -129,9 +133,8 @@ const get = async function (req, res) {
   // let admissionJson = admissionObj.toWeb();
 
   // return ReS(res, {admission:admissionJson}, 201);
-}
+};
 module.exports.get = get;
-
 
 const update = async function (req, res) {
   let err, admissionObj, data, feesPaidObj;
@@ -196,7 +199,6 @@ const update = async function (req, res) {
     feesPaymentDetails: JSON.stringify(feesPaymentDetailsObj),
   };
 
-
   if (req.file) {
     // If an image was successfully uploaded, save the image name to the 'profileImage' column
     admissionInfo.profileImage = req.file.filename;
@@ -212,7 +214,9 @@ const update = async function (req, res) {
   }
   console.log(admissionObj);
   // Retrieve feesPaidObj based on admissionId
-  [err, feesPaidObj] = await to(FeesPaidByStudent.findOne({ where: { admissionId: admissionObj.id } }));
+  [err, feesPaidObj] = await to(
+    FeesPaidByStudent.findOne({ where: { admissionId: admissionObj.id } })
+  );
   if (err) {
     // Handle the error, log it, and return a response if needed
     console.log(err);
@@ -236,7 +240,7 @@ const update = async function (req, res) {
   //     }
   // }
 
-  return ReS(res, { message: 'Updated Admission: ' + admissionObj.id });
+  return ReS(res, { message: "Updated Admission: " + admissionObj.id });
 };
 
 module.exports.update = update;
@@ -245,82 +249,101 @@ const remove = async function (req, res) {
   let admissionObj, err;
   admissionObj = req.admission;
 
-  if (admissionObj.dataValues.paymentId != null && admissionObj.dataValues.paymentId != '') {
-    await db.sequelize.query(`
+  if (
+    admissionObj.dataValues.paymentId != null &&
+    admissionObj.dataValues.paymentId != ""
+  ) {
+    await db.sequelize.query(
+      `
         DELETE FROM feespaidbystudent
         WHERE paymentId = :paymentId
-    `, {
-      replacements: {
-        paymentId: admissionObj.dataValues.paymentId
-      },
-      type: db.sequelize.QueryTypes.DELETE
-    });
+    `,
+      {
+        replacements: {
+          paymentId: admissionObj.dataValues.paymentId,
+        },
+        type: db.sequelize.QueryTypes.DELETE,
+      }
+    );
   }
-  if (admissionObj.dataValues.studentId != null && admissionObj.dataValues.studentId != '') {
-
-    const isStudentIdPresent = await db.sequelize.query(`
+  if (
+    admissionObj.dataValues.studentId != null &&
+    admissionObj.dataValues.studentId != ""
+  ) {
+    const isStudentIdPresent = await db.sequelize.query(
+      `
           SELECT 1
           FROM testmarks
           WHERE studentId = :studentId
-      `, {
-      replacements: {
-        studentId: admissionObj.dataValues.studentId
-      },
-      type: db.sequelize.QueryTypes.SELECT
-    });
-    const isStudentIdPresentInAttendance = await db.sequelize.query(`
+      `,
+      {
+        replacements: {
+          studentId: admissionObj.dataValues.studentId,
+        },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+    const isStudentIdPresentInAttendance = await db.sequelize.query(
+      `
     SELECT 1
     FROM attendance
     WHERE studentId = :studentId
-`, {
-    replacements: {
-        studentId: admissionObj.dataValues.studentId
-    },
-    type: db.sequelize.QueryTypes.SELECT
-});
+`,
+      {
+        replacements: {
+          studentId: admissionObj.dataValues.studentId,
+        },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
 
-    if (isStudentIdPresent.length > 0 ||isStudentIdPresentInAttendance.length > 0) {
-      console.log("Cannot delete student because it is associated with testmarks.");
+    if (
+      isStudentIdPresent.length > 0 ||
+      isStudentIdPresentInAttendance.length > 0
+    ) {
+      console.log(
+        "Cannot delete student because it is associated with testmarks."
+      );
     } else {
       // Delete the student record only if it is not associated with testmarks
-      await db.sequelize.query(`
+      await db.sequelize.query(
+        `
               DELETE FROM student
               WHERE id = :studentId
-          `, {
-        replacements: {
-          studentId: admissionObj.dataValues.studentId
-        },
-        type: db.sequelize.QueryTypes.DELETE
-      });
+          `,
+        {
+          replacements: {
+            studentId: admissionObj.dataValues.studentId,
+          },
+          type: db.sequelize.QueryTypes.DELETE,
+        }
+      );
 
       console.log("Student deleted successfully.");
     }
   }
 
   [err, admissionObj] = await to(admissionObj.destroy());
-  
-  if (err) return ReE(res, 'error occured trying to delete admission');
 
-  return ReS(res, { message: 'Deleted Admission' }, 200);
-}
+  if (err) return ReE(res, "error occured trying to delete admission");
+
+  return ReS(res, { message: "Deleted Admission" }, 200);
+};
 module.exports.remove = remove;
 
 const getAll = async function (req, res) {
   try {
-
     const admission = await db.sequelize.query(
-      'SELECT ad.*, cl.className, d.divName, f.paymentAmount, f.remainingAmount, f.paymentDate, f.paymentDetail, f.feesPaymentDetails, f.paymentId AS paymentreciptid ' +
-      'FROM admission AS ad ' +
-      'LEFT JOIN class AS cl ON cl.id=ad.classId ' +
-      'LEFT JOIN division AS d ON d.id=ad.divId  ' +
-      'LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId',
+      "SELECT ad.*, cl.className, d.divName, f.paymentAmount, f.remainingAmount, f.paymentDate, f.paymentDetail, f.feesPaymentDetails, f.paymentId AS paymentreciptid " +
+        "FROM admission AS ad " +
+        "LEFT JOIN class AS cl ON cl.id=ad.classId " +
+        "LEFT JOIN division AS d ON d.id=ad.divId  " +
+        "LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId",
       { type: db.sequelize.QueryTypes.SELECT }
     );
     return ReS(res, { admission: admission });
-
   } catch (error) {
     return ReE(res, { admission: error });
-
   }
 };
 
@@ -330,14 +353,13 @@ const getAllList = async function (req, res) {
   try {
     const admissions = await db.sequelize.query(
       'SELECT ad.id, CONCAT(ad.firstName, " ", ad.lastName, "-", cl.className, "-", d.divName) AS text ' +
-      'FROM admission AS ad ' +
-      'LEFT JOIN class AS cl ON cl.id=ad.classId ' +
-      'LEFT JOIN division AS d ON d.id=ad.divId ' +
-      'WHERE ad.active = 1',
+        "FROM admission AS ad " +
+        "LEFT JOIN class AS cl ON cl.id=ad.classId " +
+        "LEFT JOIN division AS d ON d.id=ad.divId " +
+        "WHERE ad.active = 1",
       { type: db.sequelize.QueryTypes.SELECT }
     );
     return ReS(res, { admission: admissions });
-
   } catch (error) {
     return ReE(res, { admission: error });
   }
@@ -345,16 +367,16 @@ const getAllList = async function (req, res) {
 
 module.exports.getAllList = getAllList;
 
-
 const getAdmissionInfoAll = async function (req, res) {
   try {
     let admissionId = req.params.admissionId;
     const admission = await db.sequelize.query(
-      'SELECT ad.*, cl.className, d.divName ' +
-      'FROM admission AS ad ' +
-      'LEFT JOIN class AS cl ON cl.id=ad.classId ' +
-      'LEFT JOIN division AS d ON d.id=ad.divId ' +
-      'WHERE ad.id=' + admissionId,
+      "SELECT ad.*, cl.className, d.divName " +
+        "FROM admission AS ad " +
+        "LEFT JOIN class AS cl ON cl.id=ad.classId " +
+        "LEFT JOIN division AS d ON d.id=ad.divId " +
+        "WHERE ad.id=" +
+        admissionId,
       { type: db.sequelize.QueryTypes.SELECT }
     );
     return ReE(res, { admission: admission });
@@ -365,26 +387,29 @@ const getAdmissionInfoAll = async function (req, res) {
 
 module.exports.getAdmissionInfoAll = getAdmissionInfoAll;
 
-
 async function allocateStudents(students) {
   // Group students by classId
   try {
     let ReturnList = [];
-    const groupedStudents = _.groupBy(students, 'classId');
+    const groupedStudents = _.groupBy(students, "classId");
     const allocatedStudents = {};
 
     // Allocate students to divisions within each class
     for (const classId of Object.keys(groupedStudents)) {
       try {
         const divisionData = await db.sequelize.query(
-          'SELECT d.id, d.divName as text FROM division d JOIN class c ON FIND_IN_SET(d.id, c.divIds) > 0 WHERE c.id =' + classId,
+          "SELECT d.id, d.divName as text FROM division d JOIN class c ON FIND_IN_SET(d.id, c.divIds) > 0 WHERE c.id =" +
+            classId,
           { type: db.sequelize.QueryTypes.SELECT }
         );
-        const ids = divisionData.map(item => item.id);
+        const ids = divisionData.map((item) => item.id);
 
         // Sort students by prevPercentage in descending order and then by gender
-        const currentStudents = _.orderBy(groupedStudents[classId], ['prevPercentage', 'gender', 'firstName'], ['desc', 'asc', 'asc']);
-
+        const currentStudents = _.orderBy(
+          groupedStudents[classId],
+          ["prevPercentage", "gender", "firstName"],
+          ["desc", "asc", "asc"]
+        );
 
         // Initialize counters for each division
         const divisionCounters = {};
@@ -407,13 +432,13 @@ async function allocateStudents(students) {
           divisionIndex = (divisionIndex + 1) % ids.length;
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     }
 
     // Display allocation details
     Object.keys(allocatedStudents).forEach((key) => {
-      const [classId, divId] = key.split('_');
+      const [classId, divId] = key.split("_");
       console.log(`Class ${classId} - divId ${divId}:`);
       allocatedStudents[key].forEach((student) => {
         ReturnList.push(student);
@@ -421,25 +446,27 @@ async function allocateStudents(students) {
           `${student.firstName} - prevPercentage: ${student.prevPercentage}% - rollNo: ${student.rollNo} - Gender: ${student.gender} - classId: ${student.classId} - divId: ${student.divId}`
         );
       });
-      console.log('\n');
+      console.log("\n");
     });
     return ReturnList;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 }
-
 
 const allocateAllStudents = async function (req, res) {
   try {
     console.log("admission");
-    const admission = await db.sequelize.query('SELECT ad.* FROM admission AS ad;', { type: db.sequelize.QueryTypes.SELECT });
+    const admission = await db.sequelize.query(
+      "SELECT ad.* FROM admission AS ad;",
+      { type: db.sequelize.QueryTypes.SELECT }
+    );
     console.log(admission);
     const result = await allocateStudents(admission);
     for (const admissionRecord of result) {
-      await db.sequelize.query('CALL processAdmission(:admissionId)', {
+      await db.sequelize.query("CALL processAdmission(:admissionId)", {
         replacements: { admissionId: admissionRecord.id },
-        type: db.sequelize.QueryTypes.SELECT
+        type: db.sequelize.QueryTypes.SELECT,
       });
     }
     return ReS(res, { result: result });
@@ -451,12 +478,13 @@ const allocateAllStudents = async function (req, res) {
 
 module.exports.allocateAllStudents = allocateAllStudents;
 
-
 const allocatStudentsByClassOld = async function (req, res) {
   try {
     let classId = req.params.classId;
-    const admission = await db.sequelize.query('SELECT ad.* FROM admission AS ad where ad.classId=' + classId, { type: db.sequelize.QueryTypes.SELECT });
-
+    const admission = await db.sequelize.query(
+      "SELECT ad.* FROM admission AS ad where ad.classId=" + classId,
+      { type: db.sequelize.QueryTypes.SELECT }
+    );
 
     const result = await allocateStudents(admission);
     // console.log(result);
@@ -464,15 +492,18 @@ const allocatStudentsByClassOld = async function (req, res) {
     result.forEach(async (admissionRecord) => {
       console.log(admissionRecord);
       try {
-        let queryResult = await db.sequelize.query('CALL processAdmission(:admissionId, :divisionId, :rollNo, :studentId)', {
-          replacements: {
-            admissionId: admissionRecord.id,
-            divisionId: admissionRecord.divId,
-            rollNo: admissionRecord.rollNo,
-            studentId: admissionRecord.studentId
-          },
-          type: db.sequelize.QueryTypes.SELECT
-        });
+        let queryResult = await db.sequelize.query(
+          "CALL processAdmission(:admissionId, :divisionId, :rollNo, :studentId)",
+          {
+            replacements: {
+              admissionId: admissionRecord.id,
+              divisionId: admissionRecord.divId,
+              rollNo: admissionRecord.rollNo,
+              studentId: admissionRecord.studentId,
+            },
+            type: db.sequelize.QueryTypes.SELECT,
+          }
+        );
         console.log(queryResult);
       } catch (err) {
         console.log(err);
@@ -488,16 +519,18 @@ const allocatStudentsByClassOld = async function (req, res) {
 
 module.exports.allocatStudentsByClassOld = allocatStudentsByClassOld;
 
-
 const allocatStudentsByClass = async function (req, res) {
   try {
     let classId = req.params.classId;
 
     // Fetch admission records for the given classId
-    const admission = await db.sequelize.query('SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId', {
-      replacements: { classId },
-      type: db.sequelize.QueryTypes.SELECT
-    });
+    const admission = await db.sequelize.query(
+      "SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId",
+      {
+        replacements: { classId },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
 
     const result = await allocateStudents(admission);
 
@@ -510,7 +543,8 @@ const allocatStudentsByClass = async function (req, res) {
         if (admissionRecord.studentId) {
           // Update existing student record
           // Update existing student record
-          await db.sequelize.query(`
+          await db.sequelize.query(
+            `
                     UPDATE student
                     SET
                         firstName = '${admissionRecord.firstName}',
@@ -539,13 +573,15 @@ const allocatStudentsByClass = async function (req, res) {
                         pincode = ${admissionRecord.pincode},
                         updatedAt = CURRENT_TIMESTAMP
                     WHERE id = ${admissionRecord.studentId}
-                    `, {
-            type: db.sequelize.QueryTypes.UPDATE
-          });
-
+                    `,
+            {
+              type: db.sequelize.QueryTypes.UPDATE,
+            }
+          );
         } else {
           // Insert new student record
-          const [insertResult] = await db.sequelize.query(`
+          const [insertResult] = await db.sequelize.query(
+            `
                   INSERT INTO student (
                       firstName,
                       middleName,
@@ -610,10 +646,12 @@ const allocatStudentsByClass = async function (req, res) {
                       1,
                       1
                   );
-              `, {
-            type: db.sequelize.QueryTypes.INSERT
-          });
-          console.log("insertResult")
+              `,
+            {
+              type: db.sequelize.QueryTypes.INSERT,
+            }
+          );
+          console.log("insertResult");
           console.log(insertResult);
           // Get the ID of the newly inserted student record
           studentId = insertResult;
@@ -621,38 +659,45 @@ const allocatStudentsByClass = async function (req, res) {
 
         // Update isallocated, studentId, divisionId, and rollNo in the admission table
         // Update isallocated, studentId, divisionId, and rollNo in the admission table
-        await db.sequelize.query(`
+        await db.sequelize.query(
+          `
               UPDATE admission
-              SET isallocated = 1, studentId = ${studentId !== null ? ':studentId' : 'NULL'}, divId = :divisionId, rollNo = :rollNo
+              SET isallocated = 1, studentId = ${
+                studentId !== null ? ":studentId" : "NULL"
+              }, divId = :divisionId, rollNo = :rollNo
               WHERE id = :admissionId
-              `, {
-          replacements: {
-            admissionId: admissionRecord.id,
-            studentId: studentId || admissionRecord.studentId,
-            divisionId: admissionRecord.divId,
-            rollNo: admissionRecord.rollNo
-          },
-          type: db.sequelize.QueryTypes.UPDATE
-        });
+              `,
+          {
+            replacements: {
+              admissionId: admissionRecord.id,
+              studentId: studentId || admissionRecord.studentId,
+              divisionId: admissionRecord.divId,
+              rollNo: admissionRecord.rollNo,
+            },
+            type: db.sequelize.QueryTypes.UPDATE,
+          }
+        );
 
-        await db.sequelize.query(`
+        await db.sequelize.query(
+          `
                   UPDATE feespaidbystudent
-                  SET studentId = ${studentId !== null ? ':studentId' : 'NULL'},
+                  SET studentId = ${studentId !== null ? ":studentId" : "NULL"},
                   divId = :divisionId,
                   classId = :classId,
                   admissionId = :admissionId
                   WHERE paymentId = :paymentId
-                  `, {
-          replacements: {
-            admissionId: admissionRecord.id,
-            studentId: studentId || admissionRecord.studentId,
-            divisionId: admissionRecord.divId,
-            classId: admissionRecord.classId,
-            paymentId: admissionRecord.paymentId
-          },
-          type: db.sequelize.QueryTypes.UPDATE
-        });
-
+                  `,
+          {
+            replacements: {
+              admissionId: admissionRecord.id,
+              studentId: studentId || admissionRecord.studentId,
+              divisionId: admissionRecord.divId,
+              classId: admissionRecord.classId,
+              paymentId: admissionRecord.paymentId,
+            },
+            type: db.sequelize.QueryTypes.UPDATE,
+          }
+        );
       } catch (err) {
         console.log(err);
       }

@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, subjectObj] = await to(subjectObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete subject');
 
-    return ReS(res, {message:'Deleted Subject'}, 204);
+    return ReS(res, {message:'Deleted Subject'}, 200);
 }
 module.exports.remove = remove;
 const getAll = async function (req, res) {

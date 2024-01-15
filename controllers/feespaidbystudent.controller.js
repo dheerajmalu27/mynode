@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, feespaidbystudentObj] = await to(feespaidbystudentObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete feespaidbystudent');
 
-    return ReS(res, {message:'Deleted FeesPaidByStudent'}, 204);
+    return ReS(res, {message:'Deleted FeesPaidByStudent'}, 200);
 }
 module.exports.remove = remove;
 

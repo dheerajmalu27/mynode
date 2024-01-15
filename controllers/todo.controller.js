@@ -53,7 +53,7 @@ const remove = async function(req, res){
     [err, Todos] = await to(Todos.destroy());
     if(err) return ReE(res, 'error occured trying to delete Todos');
 
-    return ReS(res, {message:'Deleted Todos'}, 204);
+    return ReS(res, {message:'Deleted Todos'}, 200);
 }
 module.exports.remove = remove;
 

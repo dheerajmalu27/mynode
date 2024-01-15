@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, leavingcertificatesObj] = await to(leavingcertificatesObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete leavingcertificates');
 
-    return ReS(res, {message:'Deleted Leavingcertificate'}, 204);
+    return ReS(res, {message:'Deleted Leavingcertificate'}, 200);
 }
 module.exports.remove = remove;
 

@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, holidaysObj] = await to(holidaysObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete holidays');
 
-    return ReS(res, {message:'Deleted Holidays'}, 204);
+    return ReS(res, {message:'Deleted Holidays'}, 200);
 }
 module.exports.remove = remove;
 

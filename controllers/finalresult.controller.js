@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, finalresultObj] = await to(finalresultObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete finalresult');
 
-    return ReS(res, {message:'Deleted Finalresult'}, 204);
+    return ReS(res, {message:'Deleted Finalresult'}, 200);
 }
 module.exports.remove = remove;
 

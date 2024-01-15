@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, stateObj] = await to(stateObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete state');
 
-    return ReS(res, {message:'Deleted State'}, 204);
+    return ReS(res, {message:'Deleted State'}, 200);
 }
 module.exports.remove = remove;
 

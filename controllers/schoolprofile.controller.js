@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, schoolprofileObj] = await to(schoolprofileObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete schoolprofile');
 
-    return ReS(res, {message:'Deleted Schoolprofile'}, 204);
+    return ReS(res, {message:'Deleted Schoolprofile'}, 200);
 }
 module.exports.remove = remove;
 

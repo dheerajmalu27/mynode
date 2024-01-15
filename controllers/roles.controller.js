@@ -50,7 +50,7 @@ const remove = async function(req, res){
     [err, rolesObj] = await to(rolesObj.destroy());
     if(err) return ReE(res, 'error occured trying to delete roles');
 
-    return ReS(res, {message:'Deleted Roles'}, 204);
+    return ReS(res, {message:'Deleted Roles'}, 200);
 }
 module.exports.remove = remove;
 
