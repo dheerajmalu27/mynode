@@ -121,7 +121,7 @@ const getAddTestmarkStudentList = async function (req, res) {
     const { classId, divId, testId, subId } = req.query;
     let teacherId = 1;
     let teacherName = "admin";
-
+    console.log(req.query);
     const checkRecord = await db.sequelize.query(
       "SELECT count(id) as counter FROM `testmarks` WHERE `classId`=" +
         classId +
@@ -172,8 +172,7 @@ const getAddTestmarkStudentList = async function (req, res) {
   }
 };
 
-const _getAddTestmarkStudentList = getAddTestmarkStudentList;
-exports.getAddTestmarkStudentList = _getAddTestmarkStudentList;
+exports.getAddTestmarkStudentList = getAddTestmarkStudentList;
 
 const bulkCreate = async function (req, res) {
   try {
@@ -253,8 +252,7 @@ const getByRecord = async function (req, res) {
   }
 };
 
-const _getByRecord = getByRecord;
-exports.getByRecord = _getByRecord;
+exports.getByRecord = getByRecord;
 
 const deleteRecordByClassDivTestSub = async function (req, res) {
   const { classId, divId, testId, subId } = req.params;

@@ -117,7 +117,7 @@ const getTeacherTimeTable = async function (req, res) {
     const teacherId = req.query.teacherId;
 
     const timetabledata = await db.sequelize.query(
-      'SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`, SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`, SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE teacherId=:teacherId AND dayName=DAYNAME(CURDATE())',
+      'SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`, SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`, SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE teacherId=:teacherId ORDER BY `start`;',
       {
         replacements: { teacherId },
         type: db.sequelize.QueryTypes.SELECT,
@@ -132,7 +132,27 @@ const getTeacherTimeTable = async function (req, res) {
 };
 
 module.exports.getTeacherTimeTable = getTeacherTimeTable;
+const getTodaysTeacherTimeTable = async function (req, res) {
+  try {
+    const TimeTableData = new Object();
+    const teacherId = req.query.teacherId;
 
+    const timetabledata = await db.sequelize.query(
+      'SELECT `id`, `teacherId`, `classId`, `divId`, `subId`, `dayId`, `timeSlot`, `textData`, `updatedAt`, `className`, `divName`, `subName` as title, `teacherName`, SUBSTRING_INDEX(`timeSlot`,"-",1) AS `start`, SUBSTRING_INDEX(`timeSlot`,"-",-1) AS `end` FROM `timetabledetailview` WHERE teacherId=:teacherId AND dayName=DAYNAME(CURDATE())',
+      {
+        replacements: { teacherId },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    TimeTableData.teachertimetabledata = timetabledata;
+    return ReS(res, TimeTableData);
+  } catch (error) {
+    return ReE(res, error);
+  }
+};
+
+module.exports.getTodaysTeacherTimeTable = getTodaysTeacherTimeTable;
 const bulkCreate = async function (req, res) {
   try {
     const TimeTableData = req.body;

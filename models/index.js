@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
     host: CONFIG.db_host,
     dialect: CONFIG.db_dialect,
     port: CONFIG.db_port,
-    // operatorsAliases: false,
+    operatorsAliases: false,
     dialectOptions: {
       multipleStatements: true,
     },

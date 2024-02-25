@@ -222,8 +222,8 @@ module.exports.admission = admission;
 
 let leavingcertificates = async function (req, res, next) {
   let leavingcertificateId, err, leavingcertificatesObj;
-  leavingcertificateId = req.params.Id;
-
+  leavingcertificateId = req.params.leavingcertificateId;
+  console.log("leavingcertificateId" + leavingcertificateId);
   [err, leavingcertificatesObj] = await to(
     Leavingcertificate.findOne({ where: { id: leavingcertificateId } })
   );

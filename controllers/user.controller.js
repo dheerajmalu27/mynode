@@ -1,7 +1,7 @@
 const { User } = require("../models");
 const authService = require("../services/auth.service");
 const { to, ReE, ReS } = require("../services/util.service");
-
+const schoolprofile = require("../controllers/schoolprofile.controller");
 const create = async function (req, res) {
   const body = req.body;
 
@@ -61,14 +61,43 @@ const remove = async function (req, res) {
   return ReS(res, { message: "Deleted User" }, 200);
 };
 module.exports.remove = remove;
-
 const login = async function (req, res) {
   const body = req.body;
   let err, user;
 
   [err, user] = await to(authService.authUser(req.body));
-  if (err) return ReE(res, err, 422);
 
-  return ReS(res, { token: user.getJWT(), user: user.toWeb() });
+  if (err) {
+    // console.log(err);
+    // If user not found, try authentication with authUserTeacherView
+    if (err.message === "Not registered") {
+      [err, user] = await to(authService.authUserTeacherView(req.body));
+      console.log("user");
+      console.log(user);
+
+      if (err) return ReE(res, err, 422);
+    } else {
+      return ReE(res, err, 422);
+    }
+  }
+
+  try {
+    let schoolprofiledata = await schoolprofile.getAll({}, {});
+    const schoolprofileObjects = schoolprofiledata.schoolprofile.map(
+      (profile) => profile.dataValues
+    );
+    if (user.dataValues && user.dataValues.hasOwnProperty("password")) {
+      delete user.dataValues.password;
+    }
+
+    return ReS(res, {
+      token: user.getJWT(),
+      user: user.toWeb(),
+      schoolprofile: schoolprofileObjects[0],
+    });
+  } catch (error) {
+    console.log(error);
+    return ReE(res, error, 500); // Handle any errors that might occur
+  }
 };
 module.exports.login = login;

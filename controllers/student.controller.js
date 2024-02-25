@@ -210,10 +210,10 @@ module.exports.getAllAbsentStudent = getAllAbsentStudent;
 const getTodayAbsentStudent = async function (req, res) {
   try {
     const response = await db.sequelize.query(
-      "SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` " +
-        "FROM absentstudentlistview WHERE attendanceDate = CURDATE()",
+      "SELECT `id`, `studentId`, `rollNo`, `studentName`, `fatherName`, `mobNumber`,`className`, `divName`, `classTeacherId`, `teacherName`, `attendanceDate` FROM absentstudentlistview WHERE attendanceDate = CURDATE();",
       { type: db.sequelize.QueryTypes.SELECT }
     );
+    console.log(response);
     return ReS(res, response);
   } catch (err) {
     return ReE(res, err);

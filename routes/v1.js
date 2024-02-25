@@ -582,21 +582,25 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   LeavingcertificatesController.create
 ); // C
-// router.get('/leavingcertificates',passport.authenticate('jwt', {session:false}), LeavingcertificatesController.getAll);                R
 router.get(
-  "/leavingcertificates/:Id",
+  "/leavingcertificates",
+  passport.authenticate("jwt", { session: false }),
+  LeavingcertificatesController.getAll
+);
+router.get(
+  "/leavingcertificates/:leavingcertificateId",
   passport.authenticate("jwt", { session: false }),
   custom.leavingcertificates,
   LeavingcertificatesController.get
 ); // R
 router.put(
-  "/leavingcertificates/:Id",
+  "/leavingcertificates/:leavingcertificateId",
   passport.authenticate("jwt", { session: false }),
   custom.leavingcertificates,
   LeavingcertificatesController.update
 ); // U
 router.delete(
-  "/leavingcertificates/:Id",
+  "/leavingcertificates/:leavingcertificateId",
   passport.authenticate("jwt", { session: false }),
   custom.leavingcertificates,
   LeavingcertificatesController.remove
@@ -1078,6 +1082,11 @@ router.get(
   "/getteachertimetable",
   passport.authenticate("jwt", { session: false }),
   TimetableController.getTeacherTimeTable
+);
+router.get(
+  "/gettodaysteachertimetable",
+  passport.authenticate("jwt", { session: false }),
+  TimetableController.getTodaysTeacherTimeTable
 );
 router.get(
   "/gettimetablelist",

@@ -23,6 +23,7 @@ module.exports.create = create;
 
 const get = async function (req, res) {
   let teacherId = req.params.teacherId;
+  console.log("teacherId" + teacherId);
   [err, teacherObj] = await to(Teacher.findByPk(teacherId));
   if (err) return ReE(res, err, 422);
 
