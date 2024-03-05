@@ -21,6 +21,7 @@ const TestmarksController = require("../controllers/testmarks.controller");
 const HolidaysController = require("../controllers/holidays.controller");
 const HomeworkController = require("../controllers/homework.controller");
 const FeesController = require("../controllers/fees.controller");
+const FeesPaidByStudentController = require("../controllers/feespaidbystudent.controller");
 const BooksController = require("../controllers/books.controller");
 const BorrowedbooksController = require("../controllers/borrowedbooks.controller");
 const LeavingcertificatesController = require("../controllers/leavingcertificate.controller");
@@ -489,6 +490,11 @@ router.get(
   "/fees",
   passport.authenticate("jwt", { session: false }),
   FeesController.getAll
+);
+router.get(
+  "/pendingfees",
+  passport.authenticate("jwt", { session: false }),
+  FeesPaidByStudentController.getPendingFeesList
 );
 router.get(
   "/feesdatabyclass/:Id",

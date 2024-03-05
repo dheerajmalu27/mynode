@@ -1,17 +1,27 @@
-const { Leavingcertificate } = require("../models");
+const { Leavingcertificate, Student } = require("../models");
 const authService = require("../services/auth.service");
 const { to, ReE, ReS } = require("../services/util.service");
-
 const create = async function (req, res) {
-  let err, leavingcertificatesObj;
+  let err, leavingcertificatesObj, studentObj;
   let leavingcertificatesInfo = req.body;
-  console.log(leavingcertificatesInfo);
+
+  // Create leaving certificate
   [err, leavingcertificatesObj] = await to(
     Leavingcertificate.create(leavingcertificatesInfo)
   );
   if (err) return ReE(res, err, 422);
 
+  // Save leaving certificate
   [err, leavingcertificatesObj] = await to(leavingcertificatesObj.save());
+  if (err) return ReE(res, err, 422);
+
+  // Update student table to set active=0
+  [err, studentObj] = await to(
+    Student.update(
+      { active: 0 },
+      { where: { id: leavingcertificatesInfo.studentId } }
+    )
+  );
   if (err) return ReE(res, err, 422);
 
   let leavingcertificatesJson = leavingcertificatesObj.toWeb();
@@ -19,6 +29,24 @@ const create = async function (req, res) {
   return ReS(res, { leavingcertificates: leavingcertificatesJson }, 201);
 };
 module.exports.create = create;
+
+// const create = async function (req, res) {
+//   let err, leavingcertificatesObj;
+//   let leavingcertificatesInfo = req.body;
+//   console.log(leavingcertificatesInfo);
+//   [err, leavingcertificatesObj] = await to(
+//     Leavingcertificate.create(leavingcertificatesInfo)
+//   );
+//   if (err) return ReE(res, err, 422);
+
+//   [err, leavingcertificatesObj] = await to(leavingcertificatesObj.save());
+//   if (err) return ReE(res, err, 422);
+
+//   let leavingcertificatesJson = leavingcertificatesObj.toWeb();
+
+//   return ReS(res, { leavingcertificates: leavingcertificatesJson }, 201);
+// };
+// module.exports.create = create;
 
 const get = async function (req, res) {
   let leavingcertificatesId = req.params.leavingcertificateId;
