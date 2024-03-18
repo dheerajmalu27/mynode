@@ -99,6 +99,10 @@ const getprofile = async function (req, res) {
         "SELECT mp.* FROM messageportal as mp WHERE mp.studentId=?",
         { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }
       ),
+      feespayment: await db.sequelize.query(
+        "SELECT paymentId,paymentAmount,remainingAmount,className,divName,paymentDate FROM school.fees_paid_by_student_view where studentId=?",
+        { replacements: [studentId], type: db.sequelize.QueryTypes.SELECT }
+      ),
     };
     return ReS(res, studentData);
   } catch (err) {
@@ -179,12 +183,7 @@ module.exports.getAllList = getAllList;
 const getFinalResultStudentList = async function (req, res) {
   try {
     const students = await db.sequelize.query(
-      'SELECT st.id, CONCAT(st.firstName, " ", st.lastName, "-", cl.className, "-", d.divName) AS text ' +
-        "FROM student AS st " +
-        "JOIN finalresult AS fr ON fr.studentId=st.id " +
-        "LEFT JOIN class AS cl ON cl.id=st.classId " +
-        "LEFT JOIN division AS d ON d.id=st.divId " +
-        "WHERE st.active = 1",
+      "SELECT st.id, CONCAT(st.firstName, ' ', st.lastName, '-', cl.className, '-', d.divName) AS text FROM student AS st JOIN finalresult AS fr ON fr.studentId=st.id AND fr.classId = st.classId AND fr.divId = st.divId  LEFT JOIN class AS cl ON cl.id=st.classId LEFT JOIN division AS d ON d.id=st.divId JOIN finalresultclassdivisionlist AS frcl ON frcl.classId=st.classId AND frcl.divId=st.divId WHERE st.active=1;",
       { type: db.sequelize.QueryTypes.SELECT }
     );
     return ReS(res, { student: students });
@@ -325,11 +324,11 @@ const getAllClassDivisionStudentList = async function (req, res) {
     const { classId, divId } = req.query; // Assuming classId and divId are parameters in the request
 
     const studentData = await db.sequelize.query(
-      'SELECT st.id, st.rollNo, CONCAT(st.firstName, " ", st.lastName) AS fullName, st.profileImage, cl.className, d.divName ' +
+      'SELECT st.id, st.rollNo, CONCAT(st.firstName, " ", st.lastName) AS fullName,st.fatherName,st.parentNumber, st.profileImage, cl.className, d.divName ' +
         "FROM student AS st " +
         "LEFT JOIN class AS cl ON cl.id = st.classId " +
         "LEFT JOIN division AS d ON d.id = st.divId " +
-        "WHERE st.classId = :classId AND st.divId = :divId " +
+        "WHERE st.classId = :classId AND st.divId = :divId AND st.active=1 " +
         "ORDER BY st.rollNo", // Added ORDER BY clause
       {
         replacements: { classId, divId },

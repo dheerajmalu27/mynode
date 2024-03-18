@@ -333,17 +333,30 @@ module.exports.remove = remove;
 
 const getAll = async function (req, res) {
   try {
-    const admission = await db.sequelize.query(
-      "SELECT ad.*, cl.className, d.divName, f.paymentAmount, f.remainingAmount, f.paymentDate, f.paymentDetail, f.feesPaymentDetails, f.paymentId AS paymentreciptid " +
-        "FROM admission AS ad " +
-        "LEFT JOIN class AS cl ON cl.id=ad.classId " +
-        "LEFT JOIN division AS d ON d.id=ad.divId  " +
-        "LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId",
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
+    let active = req.query.active;
+    let query =
+      "SELECT ad.*, cl.className, d.divName, f.paymentAmount, f.remainingAmount, f.paymentDate, f.paymentDetail, f.paymentMethod, f.feesPaymentDetails, f.paymentId AS paymentreciptid " +
+      "FROM admission AS ad " +
+      "LEFT JOIN class AS cl ON cl.id=ad.classId " +
+      "LEFT JOIN division AS d ON d.id=ad.divId  " +
+      "LEFT JOIN feespaidbystudent AS f ON f.paymentId=ad.paymentId";
+
+    if (
+      typeof req.query !== "undefined" &&
+      typeof req.query.active !== "undefined" &&
+      req.query.active == 1
+    ) {
+      // query += " WHERE ad.active=1 and YEAR(ad.createdAt) = YEAR(CURDATE())";
+      query += " WHERE YEAR(ad.createdAt) = YEAR(CURDATE())";
+    }
+
+    const admission = await db.sequelize.query(query, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
     return ReS(res, { admission: admission });
   } catch (error) {
-    return ReE(res, { admission: error });
+    return ReE(res, { error: error });
   }
 };
 
@@ -525,7 +538,7 @@ const allocatStudentsByClass = async function (req, res) {
 
     // Fetch admission records for the given classId
     const admission = await db.sequelize.query(
-      "SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId",
+      "SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId AND YEAR(ad.createdAt) = YEAR(CURRENT_DATE())",
       {
         replacements: { classId },
         type: db.sequelize.QueryTypes.SELECT,
