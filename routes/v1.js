@@ -28,6 +28,7 @@ const LeavingcertificatesController = require("../controllers/leavingcertificate
 const TodoController = require("../controllers/todo.controller");
 const HomeController = require("../controllers/home.controller");
 const TimetableController = require("../controllers/timetable.controller");
+const ExpensesController = require("../controllers/expenses.controller");
 const custom = require("../middleware/custom");
 const passport = require("passport");
 const path = require("path");
@@ -115,6 +116,12 @@ router.delete(
   UserController.remove
 ); // D
 router.post("/users/login", UserController.login);
+
+// Route for forgot password
+router.post("/users/forgot-password", UserController.forgotPassword);
+
+// Route for reset password
+router.post("/users/reset-password", UserController.resetPassword);
 
 router.post(
   "/todo",
@@ -479,6 +486,36 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   custom.homework,
   HomeworkController.remove
+); // D
+
+router.post(
+  "/expenses",
+  passport.authenticate("jwt", { session: false }),
+  ExpensesController.create
+); // C
+router.get(
+  "/expenses",
+  passport.authenticate("jwt", { session: false }),
+  ExpensesController.getAll
+);
+
+router.get(
+  "/expenses/:Id",
+  passport.authenticate("jwt", { session: false }),
+  custom.expenses,
+  ExpensesController.get
+); // R
+router.put(
+  "/expenses/:Id",
+  passport.authenticate("jwt", { session: false }),
+  custom.expenses,
+  ExpensesController.update
+); // U
+router.delete(
+  "/expenses/:Id",
+  passport.authenticate("jwt", { session: false }),
+  custom.expenses,
+  ExpensesController.remove
 ); // D
 
 router.post(

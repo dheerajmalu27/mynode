@@ -13,25 +13,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
-      validate: { isEmail: { msg: "Phone number invalid." } },
+      validate: { isEmail: { msg: "Email address is invalid." } },
     },
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
       validate: {
-        len: { args: [7, 20], msg: "Phone number invalid, too short." },
-        isNumeric: { msg: "not a valid phone number." },
+        len: { args: [7, 20], msg: "Phone number is invalid, too short." },
+        isNumeric: { msg: "Phone number must be numeric." },
       },
     },
     password: DataTypes.STRING,
     active: DataTypes.BOOLEAN,
     role: DataTypes.STRING,
+    resetToken: DataTypes.STRING, // New column for storing reset token
+    resetTokenExpires: DataTypes.DATE, // New column for storing reset token expiration timestamp
   });
 
-  // Model.associate = function(models){
-  //     this.Companies = this.belongsToMany(models.Company, {through: 'UserCompany'});
-  // };
+  // Other model associations and methods...
 
   Model.beforeSave(async (user, options) => {
     let err;
@@ -49,12 +49,12 @@ module.exports = (sequelize, DataTypes) => {
 
   Model.prototype.comparePassword = async function (pw) {
     let err, pass;
-    if (!this.password) TE("password not set");
+    if (!this.password) TE("Password not set");
 
     [err, pass] = await to(bcrypt_p.compare(pw, this.password));
     if (err) TE(err);
 
-    if (!pass) TE("invalid password");
+    if (!pass) TE("Invalid password");
 
     return this;
   };

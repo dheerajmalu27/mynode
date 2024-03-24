@@ -346,8 +346,9 @@ const getAll = async function (req, res) {
       typeof req.query.active !== "undefined" &&
       req.query.active == 1
     ) {
-      // query += " WHERE ad.active=1 and YEAR(ad.createdAt) = YEAR(CURDATE())";
-      query += " WHERE YEAR(ad.createdAt) = YEAR(CURDATE())";
+      // query += " WHERE YEAR(ad.createdAt) = YEAR(CURDATE())";
+      query +=
+        " WHERE ad.createdAt BETWEEN (SELECT schoolStartDate FROM schoolprofile) AND (SELECT schoolEndDate FROM schoolprofile)";
     }
 
     const admission = await db.sequelize.query(query, {
@@ -538,7 +539,7 @@ const allocatStudentsByClass = async function (req, res) {
 
     // Fetch admission records for the given classId
     const admission = await db.sequelize.query(
-      "SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId AND YEAR(ad.createdAt) = YEAR(CURRENT_DATE())",
+      "SELECT ad.* FROM admission AS ad WHERE ad.classId = :classId AND ad.createdAt BETWEEN (SELECT schoolStartDate FROM schoolprofile) AND (SELECT schoolEndDate FROM schoolprofile)",
       {
         replacements: { classId },
         type: db.sequelize.QueryTypes.SELECT,

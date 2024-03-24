@@ -10,6 +10,7 @@ const Subject = require("./../models").Subject;
 const Teacher = require("./../models").Teacher;
 const Holidays = require("./../models").Holidays;
 const Homework = require("./../models").Homework;
+const Expenses = require("./../models").Expenses;
 const Books = require("./../models").Books;
 const Borrowedbooks = require("./../models").Borrowedbooks;
 const Classteacher = require("./../models").Classteacher;
@@ -162,6 +163,24 @@ let homework = async function (req, res, next) {
   next();
 };
 module.exports.homework = homework;
+
+let expenses = async function (req, res, next) {
+  let expensesId, err, expensesObj;
+  expensesId = req.params.Id;
+
+  [err, expensesObj] = await to(
+    Expenses.findOne({ where: { id: expensesId } })
+  );
+  if (err) return ReE(res, "err finding expenses");
+
+  if (!expensesObj)
+    return ReE(res, "expenses not found with id: " + expensesId);
+
+  req.expenses = expensesObj;
+  next();
+};
+module.exports.expenses = expenses;
+
 let fees = async function (req, res, next) {
   let feeId, err, feesObj;
   feeId = req.params.Id;
