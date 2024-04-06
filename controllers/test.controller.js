@@ -384,8 +384,8 @@ async function insertFinalResultRecords(req, res) {
             type: db.sequelize.QueryTypes.INSERT,
           }
         );
-        //  deleteAttendanceRecords(studentId, classId, divId);
-        //  deleteTestMarksRecords(studentId, classId, divId);
+        deleteAttendanceRecords(studentId, classId, divId);
+        deleteTestMarksRecords(studentId, classId, divId);
       }
     }
     const result = await getFinalResultRecords(classId, divId);

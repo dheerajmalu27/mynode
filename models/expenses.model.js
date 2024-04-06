@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    id_no: {
+    billno: {
       type: DataTypes.STRING(50),
       allowNull: false,
     },

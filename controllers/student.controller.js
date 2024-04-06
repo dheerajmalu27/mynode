@@ -150,12 +150,23 @@ const remove = async function (req, res) {
 module.exports.remove = remove;
 const getAll = async function (req, res) {
   try {
-    const studentData = await db.sequelize.query(
+    let query =
       "SELECT st.*, cl.className, d.divName FROM student AS st " +
-        "LEFT JOIN class AS cl ON cl.id=st.classId " +
-        "LEFT JOIN division AS d ON d.id=st.divId",
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
+      "LEFT JOIN class AS cl ON cl.id=st.classId " +
+      "LEFT JOIN division AS d ON d.id=st.divId";
+
+    // Check if 'active' parameter is provided in the request
+    if (req.query.active) {
+      // Assuming 'active' is a boolean value
+      const isActive = parseInt(req.query.active) === 1;
+
+      // Add WHERE clause based on the 'active' parameter
+      query += ` WHERE st.active = ${isActive}`;
+    }
+
+    const studentData = await db.sequelize.query(query, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
     return ReS(res, { student: studentData });
   } catch (err) {
     return ReE(res, err);
